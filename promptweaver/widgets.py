@@ -219,6 +219,99 @@ class HistoryLog(Static):
         )
 
 
+class MatrixRain(Static):
+    """Cascading green characters — the iconic Matrix digital rain."""
+
+    DEFAULT_CSS = """
+    MatrixRain {
+        height: 1fr;
+        min-height: 3;
+        overflow: hidden;
+    }
+    """
+
+    RAIN_CHARS = (
+        "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
+        "0123456789@#$%&*<>{}|/~"
+    )
+
+    def __init__(self, density: float = 0.03, **kwargs: object) -> None:
+        super().__init__(**kwargs)
+        self._drops: list[dict[str, int]] = []
+        self._density = density
+        self._timer: Optional[Timer] = None
+
+    def on_mount(self) -> None:
+        self._timer = self.set_interval(1 / 10, self._tick)
+
+    def on_unmount(self) -> None:
+        if self._timer is not None:
+            self._timer.stop()
+            self._timer = None
+
+    def _tick(self) -> None:
+        width = self.size.width
+        height = self.size.height
+        if width <= 0 or height <= 0:
+            return
+
+        # Cull dead drops (fully past bottom)
+        self._drops = [
+            d for d in self._drops if d["pos"] - d["length"] < height
+        ]
+
+        # Spawn new drops — spread across columns with spacing
+        for col in range(0, width, 2):
+            if random.random() < self._density:
+                self._drops.append(
+                    {
+                        "col": col,
+                        "pos": random.randint(-6, 0),
+                        "speed": random.choice([1, 1, 2]),
+                        "length": random.randint(4, max(5, height // 2)),
+                    }
+                )
+
+        # Advance all drops
+        for drop in self._drops:
+            drop["pos"] += drop["speed"]
+
+        self._render_frame(width, height)
+
+    def _render_frame(self, width: int, height: int) -> None:
+        # Build a sparse map of (row, col) -> style for active drops
+        cells: dict[tuple[int, int], str] = {}
+        for drop in self._drops:
+            col = drop["col"]
+            head = drop["pos"]
+            length = drop["length"]
+            for row in range(max(0, head - length), min(height, head + 1)):
+                if col >= width:
+                    continue
+                dist = head - row
+                if dist == 0:
+                    cells[(row, col)] = "bold bright_white"
+                elif dist <= 2:
+                    cells[(row, col)] = "bold bright_green"
+                elif dist <= length // 2:
+                    cells[(row, col)] = "green"
+                else:
+                    cells[(row, col)] = "#005500"
+
+        text = Text()
+        for row in range(height):
+            for col in range(width):
+                style = cells.get((row, col))
+                if style:
+                    text.append(random.choice(self.RAIN_CHARS), style=style)
+                else:
+                    text.append(" ")
+            if row < height - 1:
+                text.append("\n")
+
+        self.update(text)
+
+
 class EntropyMeter(Static):
     """Visual meter showing exploration of the combinatorial space."""
 

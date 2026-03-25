@@ -17,7 +17,13 @@ from textual.widgets import Footer, Static
 from .engine import CombinatorialEngine
 from .models import GeneratedPrompt
 from .store import PromptStore
-from .widgets import EntropyMeter, GlitchPrompt, HistoryLog, MatrixBanner
+from .widgets import (
+    EntropyMeter,
+    GlitchPrompt,
+    HistoryLog,
+    MatrixBanner,
+    MatrixRain,
+)
 
 # ── neon category highlight colors ───────────────────────────────────────
 CATEGORY_STYLES: dict[str, str] = {
@@ -90,9 +96,19 @@ class PromptWeaverApp(App[None]):
         height: 1fr;
     }
 
-    #main {
+    #main-col {
         width: 3fr;
         margin: 0 1;
+    }
+
+    #main-scroll {
+        height: auto;
+        max-height: 100%;
+    }
+
+    #matrix-rain {
+        height: 1fr;
+        min-height: 3;
     }
 
     #sidebar {
@@ -131,11 +147,13 @@ class PromptWeaverApp(App[None]):
     def compose(self) -> ComposeResult:
         yield MatrixBanner()
         with Horizontal(id="body"):
-            with VerticalScroll(id="main"):
-                yield GlitchPrompt(id="prompt-display")
-                yield Static(id="negative-display")
-                yield Static(id="components-display")
-                yield EntropyMeter(id="entropy-display")
+            with Vertical(id="main-col"):
+                with VerticalScroll(id="main-scroll"):
+                    yield GlitchPrompt(id="prompt-display")
+                    yield Static(id="negative-display")
+                    yield Static(id="components-display")
+                    yield EntropyMeter(id="entropy-display")
+                yield MatrixRain(id="matrix-rain")
             with Vertical(id="sidebar"):
                 yield HistoryLog(id="history-log")
         yield Footer()
