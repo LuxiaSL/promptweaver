@@ -1,4 +1,4 @@
-"""Textual TUI application for Prompt Weaver."""
+"""Textual TUI application for Prompt Weaver — Matrix Edition."""
 
 from __future__ import annotations
 
@@ -11,31 +11,32 @@ from rich.table import Table
 from rich.text import Text
 from textual.app import App, ComposeResult
 from textual.binding import Binding
-from textual.containers import VerticalScroll
-from textual.widgets import Footer, Header, Static
+from textual.containers import Horizontal, Vertical, VerticalScroll
+from textual.widgets import Footer, Static
 
 from .engine import CombinatorialEngine
 from .models import GeneratedPrompt
 from .store import PromptStore
+from .widgets import EntropyMeter, GlitchPrompt, HistoryLog, MatrixBanner
 
-# Category highlight colors (work on both light + dark terminals)
+# ── neon category highlight colors ───────────────────────────────────────
 CATEGORY_STYLES: dict[str, str] = {
-    "subject_form": "bold",
-    "material_substance": "bold yellow",
-    "texture_density": "bold green",
-    "light_behavior": "bold cyan",
-    "color_logic": "bold magenta",
-    "atmosphere_field": "bold blue",
-    "phenomenon_pattern": "bold red",
-    "spatial_logic": "bold white",
-    "scale_perspective": "bold yellow",
-    "temporal_state": "bold green",
-    "setting_location": "bold cyan",
-    "medium_render": "bold magenta",
+    "subject_form": "bold bright_white",
+    "material_substance": "bold bright_yellow",
+    "texture_density": "bold bright_green",
+    "light_behavior": "bold bright_cyan",
+    "color_logic": "bold bright_magenta",
+    "atmosphere_field": "bold #6688ff",
+    "phenomenon_pattern": "bold #ff6644",
+    "spatial_logic": "bold #aaffaa",
+    "scale_perspective": "bold #ffaa44",
+    "temporal_state": "bold #ff88ff",
+    "setting_location": "bold #44ffcc",
+    "medium_render": "bold #ff8866",
 }
 
 LABEL_STYLES: dict[str, str] = {
-    "subject_form": "dim bold",
+    "subject_form": "dim",
     "material_substance": "dim yellow",
     "texture_density": "dim green",
     "light_behavior": "dim cyan",
@@ -44,9 +45,9 @@ LABEL_STYLES: dict[str, str] = {
     "phenomenon_pattern": "dim red",
     "spatial_logic": "dim",
     "scale_perspective": "dim yellow",
-    "temporal_state": "dim green",
+    "temporal_state": "dim magenta",
     "setting_location": "dim cyan",
-    "medium_render": "dim magenta",
+    "medium_render": "dim red",
 }
 
 
@@ -54,7 +55,7 @@ def _highlight_prompt(prompt_text: str, components: dict[str, list[str]]) -> Tex
     """Highlight component words in a prompt string with category colors."""
     text = Text(prompt_text)
     for category, words in components.items():
-        style = CATEGORY_STYLES.get(category, "bold")
+        style = CATEGORY_STYLES.get(category, "bold bright_green")
         for word in words:
             start = 0
             while True:
@@ -67,29 +68,56 @@ def _highlight_prompt(prompt_text: str, components: dict[str, list[str]]) -> Tex
 
 
 class PromptWeaverApp(App[None]):
-    """Combinatorial prompt generator TUI."""
+    """Combinatorial prompt generator TUI — Matrix Edition."""
 
-    TITLE = "prompt weaver"
-    SUB_TITLE = "combinatorial prompt generator"
+    TITLE = "promptweaver"
+    SUB_TITLE = "// combinatorial prompt generator"
 
     CSS = """
     Screen {
-        background: $surface;
+        background: #000000;
+        color: #00ff41;
     }
+
+    MatrixBanner {
+        dock: top;
+        height: auto;
+        background: #000000;
+        padding: 0 2;
+    }
+
+    #body {
+        height: 1fr;
+    }
+
     #main {
-        margin: 1 3;
+        width: 3fr;
+        margin: 0 1;
     }
-    #prompt-display, #negative-display, #components-display {
+
+    #sidebar {
+        width: 1fr;
+        min-width: 28;
+        max-width: 38;
+        margin: 0 1 0 0;
+    }
+
+    #negative-display, #components-display {
         margin-bottom: 1;
+    }
+
+    Footer {
+        background: #001100;
+        color: #00ff41;
     }
     """
 
     BINDINGS = [
-        Binding("space", "next_prompt", "Next", priority=True),
-        Binding("enter", "next_prompt", "Next", show=False, priority=True),
-        Binding("t", "cycle_template", "Template"),
-        Binding("c", "copy_prompt", "Copy"),
-        Binding("q", "quit_app", "Quit"),
+        Binding("space", "next_prompt", "GENERATE", priority=True),
+        Binding("enter", "next_prompt", "GENERATE", show=False, priority=True),
+        Binding("t", "cycle_template", "TEMPLATE"),
+        Binding("c", "copy_prompt", "COPY"),
+        Binding("q", "quit_app", "EXIT"),
     ]
 
     def __init__(self, db_path: Optional[Path] = None) -> None:
@@ -101,12 +129,15 @@ class PromptWeaverApp(App[None]):
         self._template_idx: int = 0
 
     def compose(self) -> ComposeResult:
-        yield Header(show_clock=True)
-        with VerticalScroll(id="main"):
-            yield Static(id="prompt-display")
-            yield Static(id="negative-display")
-            yield Static(id="components-display")
-            yield Static(id="stats-display")
+        yield MatrixBanner()
+        with Horizontal(id="body"):
+            with VerticalScroll(id="main"):
+                yield GlitchPrompt(id="prompt-display")
+                yield Static(id="negative-display")
+                yield Static(id="components-display")
+                yield EntropyMeter(id="entropy-display")
+            with Vertical(id="sidebar"):
+                yield HistoryLog(id="history-log")
         yield Footer()
 
     def on_mount(self) -> None:
@@ -130,24 +161,21 @@ class PromptWeaverApp(App[None]):
 
         p = self.current
 
-        # Positive prompt — highlighted components
+        # Positive prompt — glitch decode animation
         highlighted = _highlight_prompt(p.positive, p.components)
-        self.query_one("#prompt-display", Static).update(
-            Panel(
-                highlighted,
-                title=f"[bold cyan]{p.template_id}[/]",
-                subtitle=f"[dim]{p.hash}[/]",
-                border_style="cyan",
-                padding=(1, 2),
-            )
+        self.query_one("#prompt-display", GlitchPrompt).decode(
+            plain_text=p.positive,
+            final_renderable=highlighted,
+            title=f"[bold bright_green]{p.template_id}[/]",
+            subtitle=f"[dim green]0x{p.hash}[/]",
         )
 
         # Negative prompt
         self.query_one("#negative-display", Static).update(
             Panel(
-                Text(p.negative, style="dim italic"),
-                title="[dim]negative[/]",
-                border_style="bright_black",
+                Text(p.negative, style="dim italic #aa4444"),
+                title="[dim red]// negative[/]",
+                border_style="#664444",
                 padding=(0, 2),
             )
         )
@@ -160,32 +188,29 @@ class PromptWeaverApp(App[None]):
         tbl.add_column("Selection")
         for cat, words in p.components.items():
             tbl.add_row(
-                Text(cat, style=LABEL_STYLES.get(cat, "dim")),
-                Text(", ".join(words), style=CATEGORY_STYLES.get(cat, "")),
+                Text(cat, style=LABEL_STYLES.get(cat, "dim green")),
+                Text(", ".join(words), style=CATEGORY_STYLES.get(cat, "green")),
             )
         self.query_one("#components-display", Static).update(
             Panel(
                 tbl,
-                title="[dim]components[/]",
-                border_style="bright_black",
+                title="[dim green]// components[/]",
+                border_style="#006600",
                 padding=(0, 1),
             )
         )
 
-        # Stats line
-        total = self.engine.total_combinations
-        count = self.store.count
-        pct = (count / total * 100) if total > 0 else 0.0
-        filter_label = (
-            f"  [cyan]{self._template_filter}[/]"
-            if self._template_filter
-            else "  [dim]all templates[/]"
+        # Entropy meter
+        self.query_one("#entropy-display", EntropyMeter).set_progress(
+            count=self.store.count,
+            total=self.engine.total_combinations,
+            template_filter=self._template_filter,
         )
-        self.query_one("#stats-display", Static).update(
-            Text.from_markup(
-                f"  [dim]#{count:,}[/]  of  [dim]~{total:,} possible[/]"
-                f"  ·  [dim]{pct:.8f}%[/]{filter_label}"
-            )
+
+        # History log
+        self.query_one("#history-log", HistoryLog).add_entry(
+            hash_str=p.hash,
+            template_id=p.template_id,
         )
 
     # ── actions ───────────────────────────────────────────────────────
@@ -216,7 +241,11 @@ class PromptWeaverApp(App[None]):
                 )
                 self.notify("copied!", timeout=1)
                 return
-            except (FileNotFoundError, subprocess.TimeoutExpired, subprocess.CalledProcessError):
+            except (
+                FileNotFoundError,
+                subprocess.TimeoutExpired,
+                subprocess.CalledProcessError,
+            ):
                 continue
         self.notify("no clipboard tool found", severity="warning", timeout=2)
 
