@@ -41,6 +41,7 @@ Usage:
 from __future__ import annotations
 
 import argparse
+import json
 import logging
 import sys
 from dataclasses import dataclass
@@ -417,6 +418,11 @@ def main() -> None:
         help="CLIP vs T5 weight in joint similarity (default: 0.5)",
     )
     parser.add_argument(
+        "--alpha-per-category",
+        type=Path,
+        help="JSON file mapping category → alpha (overrides --alpha for listed categories)",
+    )
+    parser.add_argument(
         "--redundancy-threshold",
         type=float,
         default=0.88,
@@ -482,6 +488,12 @@ def main() -> None:
 
     t5_model = None if args.clip_only else args.t5_model
 
+    # Load per-category alphas if provided
+    per_cat_alpha: dict[str, float] = {}
+    if args.alpha_per_category and args.alpha_per_category.exists():
+        per_cat_alpha = json.loads(args.alpha_per_category.read_text())
+        logger.info(f"Loaded per-category alphas from {args.alpha_per_category}")
+
     print(f"{'='*60}")
     print("DIVERSITY SELECTION PIPELINE")
     print(f"{'='*60}")
@@ -489,7 +501,10 @@ def main() -> None:
     print(f"  All categories:  {len(all_candidates)}")
     print(f"  Selecting:   {len(select_cats)} — {sorted(select_cats)}")
     print(f"  Target k:    {args.k} {'(auto-k enabled)' if args.auto_k else ''}")
-    print(f"  Alpha:       {args.alpha}")
+    if per_cat_alpha:
+        print(f"  Alpha:       per-category from {args.alpha_per_category.name}")
+    else:
+        print(f"  Alpha:       {args.alpha}")
     print(f"  CLIP model:  {args.clip_model}")
     print(f"  T5 model:    {t5_model or '(disabled)'}")
     total_candidates = sum(len(v) for c, v in all_candidates.items() if c in select_cats)
@@ -557,6 +572,7 @@ def main() -> None:
     # Run selection pipeline per category
     results: dict[str, SelectionResult] = {}
     for cat in sorted(select_cats):
+        cat_alpha = per_cat_alpha.get(cat, args.alpha)
         results[cat] = select_category(
             category=cat,
             candidates=working_candidates[cat],
@@ -565,7 +581,7 @@ def main() -> None:
                 k: v for k, v in all_cat_embeddings.items() if k != cat
             },
             k=args.k,
-            alpha=args.alpha,
+            alpha=cat_alpha,
             redundancy_threshold=args.redundancy_threshold,
             auto_k=args.auto_k,
         )

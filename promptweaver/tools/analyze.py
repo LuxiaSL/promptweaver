@@ -54,6 +54,99 @@ logger = logging.getLogger(__name__)
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
+# ALPHA ANALYSIS — per-category embedding space discrimination
+# ═══════════════════════════════════════════════════════════════════════════════
+
+
+def analyze_alpha(
+    category_embeddings: dict[str, DualEmbeddings],
+) -> dict[str, float]:
+    """
+    Compare CLIP vs T5 discriminative power per category and compute
+    optimal per-category alpha weights.
+
+    For each category:
+    - Compute CLIP-only pairwise similarity distribution
+    - Compute T5-only pairwise similarity distribution
+    - Measure dynamic range (max-min), variance, and mean spread
+    - Alpha = clip_variance / (clip_variance + t5_variance)
+      → categories where CLIP spreads more get higher CLIP weight
+      → categories where T5 spreads more get higher T5 weight
+
+    Returns dict of category → suggested alpha.
+    """
+    print(f"\n{'='*75}")
+    print("EMBEDDING SPACE ANALYSIS — CLIP vs T5 Discriminative Power")
+    print(f"{'='*75}")
+
+    print(
+        f"\n{'Category':<25} "
+        f"{'CLIP':^24} {'T5':^24} "
+        f"{'Alpha':>6}"
+    )
+    print(
+        f"{'':25} "
+        f"{'Mean':>6} {'Std':>6} {'Range':>6} {'Var':>6} "
+        f"{'Mean':>6} {'Std':>6} {'Range':>6} {'Var':>6} "
+        f"{'':>6}"
+    )
+    print("-" * 81)
+
+    alphas: dict[str, float] = {}
+
+    for cat, emb in sorted(category_embeddings.items()):
+        if emb.t5 is None:
+            alphas[cat] = 1.0
+            continue
+
+        n = len(emb.words)
+        mask = ~np.eye(n, dtype=bool)
+
+        # CLIP space
+        clip_sim = emb.clip @ emb.clip.T
+        clip_pairwise = clip_sim[mask]
+        clip_mean = float(clip_pairwise.mean())
+        clip_std = float(clip_pairwise.std())
+        clip_range = float(clip_pairwise.max() - clip_pairwise.min())
+        clip_var = float(clip_pairwise.var())
+
+        # T5 space
+        t5_sim = emb.t5 @ emb.t5.T
+        t5_pairwise = t5_sim[mask]
+        t5_mean = float(t5_pairwise.mean())
+        t5_std = float(t5_pairwise.std())
+        t5_range = float(t5_pairwise.max() - t5_pairwise.min())
+        t5_var = float(t5_pairwise.var())
+
+        # Alpha: weight toward the space with more variance (more discriminative)
+        total_var = clip_var + t5_var
+        alpha = clip_var / total_var if total_var > 0 else 0.5
+        alphas[cat] = round(alpha, 3)
+
+        # Which space "wins"?
+        winner = "CLIP" if alpha > 0.55 else ("T5" if alpha < 0.45 else "balanced")
+
+        print(
+            f"{cat:<25} "
+            f"{clip_mean:>6.3f} {clip_std:>6.3f} {clip_range:>6.3f} {clip_var:>6.4f} "
+            f"{t5_mean:>6.3f} {t5_std:>6.3f} {t5_range:>6.3f} {t5_var:>6.4f} "
+            f"{alpha:>6.3f}  {winner}"
+        )
+
+    # Summary
+    mean_alpha = np.mean(list(alphas.values()))
+    print(f"\nMean alpha across categories: {mean_alpha:.3f}")
+    print(f"Range: {min(alphas.values()):.3f} — {max(alphas.values()):.3f}")
+
+    clip_dominant = sum(1 for a in alphas.values() if a > 0.55)
+    t5_dominant = sum(1 for a in alphas.values() if a < 0.45)
+    balanced = len(alphas) - clip_dominant - t5_dominant
+    print(f"CLIP-dominant: {clip_dominant} | T5-dominant: {t5_dominant} | Balanced: {balanced}")
+
+    return alphas
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
 # COMPARISON
 # ═══════════════════════════════════════════════════════════════════════════════
 
@@ -304,6 +397,11 @@ def main() -> None:
         help="Similarity threshold for redundancy warnings (default: 0.85)",
     )
     parser.add_argument(
+        "--alpha-analysis",
+        action="store_true",
+        help="Compare CLIP vs T5 discriminative power per category and suggest per-category alpha",
+    )
+    parser.add_argument(
         "-v", "--verbose",
         action="store_true",
     )
@@ -352,6 +450,13 @@ def main() -> None:
             f"{stats.min_similarity:>6.3f} {stats.max_similarity:>6.3f} "
             f"{stats.std_similarity:>6.3f} {stats.redundant_pairs:>5}{warn}"
         )
+
+    # Alpha analysis (must run before contamination since it needs dual embeddings)
+    suggested_alphas: dict[str, float] | None = None
+    if args.alpha_analysis and not args.clip_only:
+        suggested_alphas = analyze_alpha(input_embs)
+    elif args.alpha_analysis and args.clip_only:
+        print("\n[SKIP] Alpha analysis requires both CLIP and T5 (remove --clip-only)")
 
     # Cross-category contamination
     contaminated = cross_category_contamination(input_embs, args.alpha)
