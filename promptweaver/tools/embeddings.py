@@ -150,6 +150,42 @@ class T5TextEmbedder:
         return np.concatenate(all_embeddings, axis=0)
 
 
+class OpenCLIPTextEmbedder:
+    """OpenCLIP text encoder — stronger visual-semantic embeddings (ViT-bigG/14, LAION-2B)."""
+
+    def __init__(self, model_name: str = "ViT-bigG-14", pretrained: str = "laion2b_s39b_b160k") -> None:
+        import torch
+        import open_clip
+
+        self.device = "cuda" if torch.cuda.is_available() else "cpu"
+        logger.info(f"Loading OpenCLIP: {model_name} ({pretrained}) on {self.device}")
+
+        self.model, _, _ = open_clip.create_model_and_transforms(
+            model_name, pretrained=pretrained, device=self.device
+        )
+        self.tokenizer = open_clip.get_tokenizer(model_name)
+        self.model.eval()
+        self.embedding_dim = 1280  # bigG projection dim
+        logger.info(f"OpenCLIP ready — {self.embedding_dim}d embeddings")
+
+    def encode_batch(self, texts: list[str]) -> np.ndarray:
+        """Encode texts → (n, dim) L2-normalized embeddings."""
+        import torch
+
+        all_embeddings: list[np.ndarray] = []
+
+        for start in range(0, len(texts), ENCODE_BATCH_SIZE):
+            batch = texts[start : start + ENCODE_BATCH_SIZE]
+
+            with torch.no_grad():
+                tokens = self.tokenizer(batch).to(self.device)
+                features = self.model.encode_text(tokens)
+                features = features / features.norm(dim=-1, keepdim=True)
+                all_embeddings.append(features.cpu().float().numpy())
+
+        return np.concatenate(all_embeddings, axis=0)
+
+
 # ═══════════════════════════════════════════════════════════════════════════════
 # DUAL-SPACE CONTAINER
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -189,14 +225,19 @@ class DualEmbeddings:
 
 
 class DualSpaceEmbedder:
-    """Orchestrates CLIP + T5 embedding computation."""
+    """Orchestrates visual + linguistic embedding computation."""
 
     def __init__(
         self,
         clip_model: str = DEFAULT_CLIP_MODEL,
         t5_model: str | None = DEFAULT_T5_MODEL,
     ) -> None:
-        self.clip_embedder = CLIPTextEmbedder(clip_model)
+        # Auto-select OpenCLIP for ViT-bigG and similar model names
+        if clip_model.startswith("ViT-") or clip_model == "openclip":
+            model_name = clip_model if clip_model.startswith("ViT-") else "ViT-bigG-14"
+            self.clip_embedder = OpenCLIPTextEmbedder(model_name)
+        else:
+            self.clip_embedder = CLIPTextEmbedder(clip_model)
         self.t5_embedder: T5TextEmbedder | None = None
         if t5_model:
             self.t5_embedder = T5TextEmbedder(t5_model)
