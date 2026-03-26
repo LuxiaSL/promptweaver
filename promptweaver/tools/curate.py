@@ -120,7 +120,8 @@ DUPLICATES_TO_CULL: list[tuple[str, list[str]]] = [
 
 # High-value originals to restore (only if not already present)
 RESTORE_ORIGINALS: dict[str, list[str]] = {
-    "atmosphere_field": ["dense fog", "underwater caustics", "smoke haze", "dust motes"],
+    "atmosphere_field": ["dense fog", "underwater caustics", "smoke haze", "dust motes",
+                         "campfire embers", "void darkness"],
     "color_logic": ["iridescent", "complementary orange and blue", "high contrast black and gold"],
     "light_behavior": ["volumetric god rays", "crepuscular rays", "bokeh balls",
                        "subsurface scattering", "dappled light", "harsh directional", "soft diffused"],
@@ -139,10 +140,11 @@ RESTORE_ORIGINALS: dict[str, list[str]] = {
                            "pixel sort", "moiré interference"],
     "setting_location": ["orbital station", "abyssal trench", "salt flat",
                          "neon-lit alley", "fog shrouded moorland"],
-    "subject_form": ["void", "membrane", "lattice", "plume", "threshold"],
+    "subject_form": ["void", "membrane", "lattice", "plume", "threshold",
+                     "vessel", "monolith", "shard", "veil", "shroud"],
 }
 
-# Words to remove entirely (visually meaningless or too vague)
+# Words to remove entirely (visually meaningless, too vague, or miscategorized beyond repair)
 REMOVE_WORDS = {
     "vapor",  # Too vague
     "osmium tetroxide",  # Colorless toxic gas, no visual
@@ -156,6 +158,28 @@ REMOVE_WORDS = {
     "seamless blend",  # Generic compositing term
     "flange",  # Mechanical part, not spatial
     "valance",  # Textile item, not spatial
+    # From final review — cross-category dupes (keep in better-fitting category)
+    "bismuth crystal",  # Dupe: keep in material_substance, remove from phenomenon_pattern
+    "lava flow crust",  # Dupe: keep in phenomenon_pattern, remove from texture_density
+    # Bloated clusters — collapse near-identical analogous entries
+    "analogous rust to brick",
+    "analogous cinnamon to rust",
+    "analogous peach to salmon",
+    "analogous coral to salmon",
+    "analogous sandstone to ochre",
+    "analogous sage to olive",
+    # Bloated scientific imaging cluster
+    "mri cross-section",  # Keep mri scan and mri false color
+    "acoustic microscopy",  # Too boring visually
+    # Misc from final review
+    "marble sculpting studio",  # Setting, not medium
+    "rococo winter garden",  # Style/setting, not color logic
+    "monochromatic olive drab",  # Too flat
+    "rendered lard",  # Near-dupe of rendered tallow
+    "linen canvas tooth",  # Near-dupe of linen canvas grain
+    "bubble column rise",  # Near-dupe of bubble stream rise
+    "angular momentum",  # Physics, not composition
+    "palindrome arrangement",  # Linguistic, no visual mapping
 }
 
 
