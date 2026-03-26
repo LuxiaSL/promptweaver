@@ -1,0 +1,175 @@
+categories:
+  atmosphere_field:
+    after_filter: 285
+    after_mean_sim: 0.335
+    before_mean_sim: 0.3604
+    candidates: 302
+    elbow_k: 4
+    improvement: 0.0254
+    most_similar_pair:
+      similarity: 0.8074
+      words:
+      - phosphorescent bacteria bloom
+      - phosphorescent algae
+    redundant_dropped: 17
+    selected: 60
+  color_logic:
+    after_filter: 282
+    after_mean_sim: 0.3464
+    before_mean_sim: 0.364
+    candidates: 313
+    elbow_k: 61
+    improvement: 0.0176
+    most_similar_pair:
+      similarity: 0.7964
+      words:
+      - cool arctic blue warm amber
+      - warm amber cool azure contrast
+    redundant_dropped: 31
+    selected: 60
+  light_behavior:
+    after_filter: 320
+    after_mean_sim: 0.292
+    before_mean_sim: 0.3372
+    candidates: 344
+    elbow_k: 12
+    improvement: 0.0452
+    most_similar_pair:
+      similarity: 0.7374
+      words:
+      - chromatic lens aberration
+      - chromatic aberration fringe
+    redundant_dropped: 24
+    selected: 60
+  material_substance:
+    after_filter: 303
+    after_mean_sim: 0.3099
+    before_mean_sim: 0.3063
+    candidates: 315
+    elbow_k: 8
+    improvement: -0.0036
+    most_similar_pair:
+      similarity: 0.8
+      words:
+      - lichen mat
+      - lichen crust
+    redundant_dropped: 12
+    selected: 60
+  medium_render:
+    after_filter: 247
+    after_mean_sim: 0.2687
+    before_mean_sim: 0.3346
+    candidates: 289
+    elbow_k: 28
+    improvement: 0.0659
+    most_similar_pair:
+      similarity: 0.6583
+      words:
+      - acoustic microscopy
+      - polarizing microscopy
+    redundant_dropped: 42
+    selected: 60
+  phenomenon_pattern:
+    after_filter: 279
+    after_mean_sim: 0.3375
+    before_mean_sim: 0.3355
+    candidates: 298
+    elbow_k: 35
+    improvement: -0.002
+    most_similar_pair:
+      similarity: 0.7556
+      words:
+      - fungal hyphae weave
+      - mycelial hyphae expansion
+    redundant_dropped: 19
+    selected: 60
+  scale_perspective:
+    after_filter: 284
+    after_mean_sim: 0.2912
+    before_mean_sim: 0.3157
+    candidates: 306
+    elbow_k: 5
+    improvement: 0.0245
+    most_similar_pair:
+      similarity: 0.7526
+      words:
+      - through a magnifier
+      - beneath a magnifying glass
+    redundant_dropped: 22
+    selected: 60
+  setting_location:
+    after_filter: 294
+    after_mean_sim: 0.2907
+    before_mean_sim: 0.3354
+    candidates: 317
+    elbow_k: 47
+    improvement: 0.0448
+    most_similar_pair:
+      similarity: 0.7159
+      words:
+      - brutalist water treatment facility
+      - brutalist university library
+    redundant_dropped: 23
+    selected: 60
+  spatial_logic:
+    after_filter: 300
+    after_mean_sim: 0.2821
+    before_mean_sim: 0.3344
+    candidates: 309
+    elbow_k: 51
+    improvement: 0.0523
+    most_similar_pair:
+      similarity: 0.7332
+      words:
+      - counterbalanced cantilever
+      - suspended cantilever
+    redundant_dropped: 9
+    selected: 60
+  subject_form:
+    after_filter: 319
+    after_mean_sim: 0.2806
+    before_mean_sim: 0.2725
+    candidates: 325
+    elbow_k: 30
+    improvement: -0.0081
+    most_similar_pair:
+      similarity: 0.7582
+      words:
+      - torus
+      - toroid
+    redundant_dropped: 6
+    selected: 60
+  temporal_state:
+    after_filter: 303
+    after_mean_sim: 0.2836
+    before_mean_sim: 0.3379
+    candidates: 314
+    elbow_k: 50
+    improvement: 0.0543
+    most_similar_pair:
+      similarity: 0.7828
+      words:
+      - chrysalis-splitting
+      - chrysalis-stage
+    redundant_dropped: 11
+    selected: 60
+  texture_density:
+    after_filter: 286
+    after_mean_sim: 0.2945
+    before_mean_sim: 0.3374
+    candidates: 304
+    elbow_k: 43
+    improvement: 0.0429
+    most_similar_pair:
+      similarity: 0.7967
+      words:
+      - latticed filigree
+      - intricate filigree
+    redundant_dropped: 18
+    selected: 60
+gate_logic:
+  contamination: AND (both spaces must agree on misclassification)
+  opposites: T5-only (semantic distance)
+  redundancy: OR (similar in either space → drop)
+  selection: OR-distance (different in either space → keep)
+generated_at: '2026-03-26T01:11:21.315589'
