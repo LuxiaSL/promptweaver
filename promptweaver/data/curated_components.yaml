@@ -1,192 +1,377 @@
 components:
   atmosphere_field:
-  - word: aerosolized brine
-  - word: bubble stream rise
-  - word: dandelion seeds
-  - word: neon tube glow cloud
-  - word: mica flake swirl
-  - word: drizzle spray
-  - word: soap bubble spiral
-  - word: grit blasted
-  - word: jellyfish egg clouds
-  - word: salt spray
-  - word: bioluminescent algae veil
-  - word: aurora borealis curtain
-  - word: glowing plankton
-  - word: ocean plankton bloom
-  - word: chlorine gas leak
-  - word: smoke plume billow
-  - word: volcanic ashfall
-  - word: eucalyptus oil vapor
-  - word: galaxy filament web
-  - word: heat distortion
-  - word: bubble column rise
-  - word: thermal vent plume
-  - word: copal incense threads
-  - word: static interference
-  - word: rime ice forest
-  - word: meteor shower trail
-  - word: iron filing suspension
-  - word: cement slurry
-  - word: petrichor mist
-  - word: swirling nebula dust
-  - word: moonbow mist
-  - word: pollen grain closeup
-  - word: methane bubbles
-  - word: frost flowers
-  - word: snow grain scatter
-  - word: copper sulfate bloom
-  - word: steam breath plumes
-  - word: snow flurries
-  - word: sea spray
-  - word: copepod bloom
-  - word: magnetic fluid spike
-  - word: magnesium spark fog
-  - word: ash suspension
-  - word: mosquito cloud
-  - word: tornado vortex
-  - word: firefly glow
-  - word: steam vent plume
-  - word: marijuana smoke tendrils
-  - word: efflorescence bloom
-  - word: thunderstorm anvil cloud base
-  - word: magnetosphere streamers
-  - word: dense fog
-  - word: underwater caustics
-  - word: smoke haze
-  - word: dust motes
+  - opposite: meteor shower trail
+    word: aerosolized brine
+  - opposite: dandelion seeds
+    word: bubble stream rise
+  - opposite: bubble stream rise
+    word: dandelion seeds
+  - opposite: volcanic ashfall
+    word: neon tube glow cloud
+  - opposite: petrichor mist
+    word: mica flake swirl
+  - opposite: ocean plankton bloom
+    word: drizzle spray
+  - opposite: grit blasted
+    word: soap bubble spiral
+  - opposite: soap bubble spiral
+    word: grit blasted
+  - opposite: cement slurry
+    word: jellyfish egg clouds
+  - opposite: aurora borealis curtain
+    word: salt spray
+  - opposite: heat distortion
+    word: bioluminescent algae veil
+  - opposite: salt spray
+    word: aurora borealis curtain
+  - opposite: ash suspension
+    word: glowing plankton
+  - opposite: drizzle spray
+    word: ocean plankton bloom
+  - opposite: thunderstorm anvil cloud base
+    word: chlorine gas leak
+  - opposite: underwater caustics
+    word: smoke plume billow
+  - opposite: neon tube glow cloud
+    word: volcanic ashfall
+  - opposite: bubble column rise
+    word: eucalyptus oil vapor
+  - opposite: snow flurries
+    word: galaxy filament web
+  - opposite: bioluminescent algae veil
+    word: heat distortion
+  - opposite: eucalyptus oil vapor
+    word: bubble column rise
+  - opposite: frost flowers
+    word: thermal vent plume
+  - opposite: mosquito cloud
+    word: copal incense threads
+  - opposite: rime ice forest
+    word: static interference
+  - opposite: static interference
+    word: rime ice forest
+  - opposite: aerosolized brine
+    word: meteor shower trail
+  - opposite: swirling nebula dust
+    word: iron filing suspension
+  - opposite: jellyfish egg clouds
+    word: cement slurry
+  - opposite: mica flake swirl
+    word: petrichor mist
+  - opposite: iron filing suspension
+    word: swirling nebula dust
+  - opposite: copper sulfate bloom
+    word: moonbow mist
+  - opposite: dense fog
+    word: pollen grain closeup
+  - opposite: sea spray
+    word: methane bubbles
+  - opposite: thermal vent plume
+    word: frost flowers
+  - opposite: marijuana smoke tendrils
+    word: snow grain scatter
+  - opposite: moonbow mist
+    word: copper sulfate bloom
+  - opposite: tornado vortex
+    word: steam breath plumes
+  - opposite: galaxy filament web
+    word: snow flurries
+  - opposite: methane bubbles
+    word: sea spray
+  - opposite: smoke haze
+    word: copepod bloom
+  - opposite: dust motes
+    word: magnetic fluid spike
+  - opposite: magnetosphere streamers
+    word: magnesium spark fog
+  - opposite: glowing plankton
+    word: ash suspension
+  - opposite: copal incense threads
+    word: mosquito cloud
+  - opposite: steam breath plumes
+    word: tornado vortex
+  - opposite: steam vent plume
+    word: firefly glow
+  - opposite: firefly glow
+    word: steam vent plume
+  - opposite: snow grain scatter
+    word: marijuana smoke tendrils
+  - opposite: swirling nebula dust
+    word: efflorescence bloom
+  - opposite: chlorine gas leak
+    word: thunderstorm anvil cloud base
+  - opposite: magnesium spark fog
+    word: magnetosphere streamers
+  - opposite: pollen grain closeup
+    word: dense fog
+  - opposite: smoke plume billow
+    word: underwater caustics
+  - opposite: copepod bloom
+    word: smoke haze
+  - opposite: magnetic fluid spike
+    word: dust motes
   color_logic:
-  - word: absinthe green and bruised purple
-  - word: triadic cobalt marigold vermilion
-  - word: brushed brass
-  - word: muted pastels
-  - word: pastel dusting
-  - word: cold steel warming to rust
-  - word: monochromatic sage variations
-  - word: weathered barnwood palette
-  - word: rococo winter garden
-  - word: electric violet punctuating grey
-  - word: ancient terracotta patina
-  - word: analogous peach to apricot
-  - word: bioluminescent teal puncturing midnight
-  - word: bone white and oxblood
-  - word: analogous moss and sage
-  - word: analogous amber to rust
-  - word: cinnabar and jade contrast
-  - word: cold steel to ember heat
-  - word: analogous rust to brick
-  - word: charcoal warming to copper
-  - word: cool arctic versus fiery sunset
-  - word: terracotta and turquoise southwest
-  - word: charcoal field with cadmium punctuation
-  - word: tetradic plum gold teal rust
-  - word: charcoal with goldenrod punctuation
-  - word: split complementary rust orange teal
-  - word: monochromatic wine tonalities
-  - word: bistre field with amaranth punctuation
-  - word: polarized lemon yellow deep violet
-  - word: analogous coral to salmon
-  - word: cool sage warming to rust
-  - word: weathered brass
-  - word: warm tobacco cooling to slate
-  - word: monochromatic olive drab
-  - word: aged newspaper chromatics
-  - word: tangerine against deep space navy
-  - word: analogous cinnamon to rust
-  - word: ash white with jade accent
-  - word: sepia toned nostalgia
-  - word: bone with terracotta punctuation
-  - word: celadon and terracotta harmony
-  - word: monochromatic ash grey
-  - word: analogous sage to olive
-  - word: tobacco and turquoise pairing
-  - word: woad and madder cultural dyes
-  - word: smoked parchment palette
-  - word: analogous peach to salmon
-  - word: verdigris and rust patina
-  - word: slick obsidian
-  - word: weathered barnwood reds
-  - word: analogous moss to chartreuse
-  - word: kallitype sepia
-  - word: slate with electric cyan accent
-  - word: sun-warmed sandstone analogous
-  - word: oxidized bloom
-  - word: monochromatic slate depth
-  - word: analogous sandstone to ochre
-  - word: faded carnival chromatics
-  - word: monochromatic gunmetal variations
-  - word: molten gold on obsidian
-  - word: split complementary
-  - word: warm dune versus cold surf
-  - word: iridescent
-  - word: complementary orange and blue
-  - word: high contrast black and gold
+  - opposite: bone with terracotta punctuation
+    word: absinthe green and bruised purple
+  - opposite: warm dune versus cold surf
+    word: triadic cobalt marigold vermilion
+  - opposite: analogous coral to salmon
+    word: brushed brass
+  - opposite: bone white and oxblood
+    word: muted pastels
+  - opposite: molten gold on obsidian
+    word: pastel dusting
+  - opposite: bioluminescent teal puncturing midnight
+    word: cold steel warming to rust
+  - opposite: analogous rust to brick
+    word: monochromatic sage variations
+  - opposite: tangerine against deep space navy
+    word: weathered barnwood palette
+  - opposite: electric violet punctuating grey
+    word: rococo winter garden
+  - opposite: rococo winter garden
+    word: electric violet punctuating grey
+  - opposite: cool sage warming to rust
+    word: ancient terracotta patina
+  - opposite: weathered brass
+    word: analogous peach to apricot
+  - opposite: cold steel warming to rust
+    word: bioluminescent teal puncturing midnight
+  - opposite: muted pastels
+    word: bone white and oxblood
+  - opposite: smoked parchment palette
+    word: analogous moss and sage
+  - opposite: monochromatic slate depth
+    word: analogous amber to rust
+  - opposite: monochromatic ash grey
+    word: cinnabar and jade contrast
+  - opposite: tobacco and turquoise pairing
+    word: cold steel to ember heat
+  - opposite: monochromatic sage variations
+    word: analogous rust to brick
+  - opposite: monochromatic olive drab
+    word: charcoal warming to copper
+  - opposite: charcoal with goldenrod punctuation
+    word: cool arctic versus fiery sunset
+  - opposite: aged newspaper chromatics
+    word: terracotta and turquoise southwest
+  - opposite: sepia toned nostalgia
+    word: charcoal field with cadmium punctuation
+  - opposite: split complementary
+    word: tetradic plum gold teal rust
+  - opposite: cool arctic versus fiery sunset
+    word: charcoal with goldenrod punctuation
+  - opposite: monochromatic wine tonalities
+    word: split complementary rust orange teal
+  - opposite: split complementary rust orange teal
+    word: monochromatic wine tonalities
+  - opposite: polarized lemon yellow deep violet
+    word: bistre field with amaranth punctuation
+  - opposite: bistre field with amaranth punctuation
+    word: polarized lemon yellow deep violet
+  - opposite: brushed brass
+    word: analogous coral to salmon
+  - opposite: ancient terracotta patina
+    word: cool sage warming to rust
+  - opposite: analogous peach to apricot
+    word: weathered brass
+  - opposite: kallitype sepia
+    word: warm tobacco cooling to slate
+  - opposite: charcoal warming to copper
+    word: monochromatic olive drab
+  - opposite: terracotta and turquoise southwest
+    word: aged newspaper chromatics
+  - opposite: weathered barnwood palette
+    word: tangerine against deep space navy
+  - opposite: monochromatic gunmetal variations
+    word: analogous cinnamon to rust
+  - opposite: faded carnival chromatics
+    word: ash white with jade accent
+  - opposite: charcoal field with cadmium punctuation
+    word: sepia toned nostalgia
+  - opposite: absinthe green and bruised purple
+    word: bone with terracotta punctuation
+  - opposite: oxidized bloom
+    word: celadon and terracotta harmony
+  - opposite: cinnabar and jade contrast
+    word: monochromatic ash grey
+  - opposite: high contrast black and gold
+    word: analogous sage to olive
+  - opposite: cold steel to ember heat
+    word: tobacco and turquoise pairing
+  - opposite: complementary orange and blue
+    word: woad and madder cultural dyes
+  - opposite: analogous moss and sage
+    word: smoked parchment palette
+  - opposite: verdigris and rust patina
+    word: analogous peach to salmon
+  - opposite: analogous peach to salmon
+    word: verdigris and rust patina
+  - opposite: analogous sandstone to ochre
+    word: slick obsidian
+  - opposite: iridescent
+    word: weathered barnwood reds
+  - opposite: slate with electric cyan accent
+    word: analogous moss to chartreuse
+  - opposite: warm tobacco cooling to slate
+    word: kallitype sepia
+  - opposite: analogous moss to chartreuse
+    word: slate with electric cyan accent
+  - opposite: split complementary rust orange teal
+    word: sun-warmed sandstone analogous
+  - opposite: celadon and terracotta harmony
+    word: oxidized bloom
+  - opposite: analogous amber to rust
+    word: monochromatic slate depth
+  - opposite: slick obsidian
+    word: analogous sandstone to ochre
+  - opposite: ash white with jade accent
+    word: faded carnival chromatics
+  - opposite: analogous cinnamon to rust
+    word: monochromatic gunmetal variations
+  - opposite: pastel dusting
+    word: molten gold on obsidian
+  - opposite: tetradic plum gold teal rust
+    word: split complementary
+  - opposite: triadic cobalt marigold vermilion
+    word: warm dune versus cold surf
+  - opposite: weathered barnwood reds
+    word: iridescent
+  - opposite: woad and madder cultural dyes
+    word: complementary orange and blue
+  - opposite: analogous sage to olive
+    word: high contrast black and gold
   light_behavior:
-  - word: airglow night sky
-  - word: rembrandt triangle
-  - word: fluorescent tube spill
-  - word: corona halo ring
-  - word: glitch displacement
-  - word: sun pillar vertical
-  - word: moiré interference
-  - word: thermal shimmer
-  - word: gobo breakup pattern
-  - word: solar corona halo
-  - word: zoetrope slit strobe
-  - word: light painting trails
-  - word: heiligenschein halo
-  - word: bounce fill wrap
-  - word: noctilucent cloud glow
-  - word: offset mirror pair
-  - word: color separation filter
-  - word: bounce card reflection
-  - word: lenticular halo
-  - word: cold shoe splash bounce
-  - word: motivated window throw
-  - word: diffusion gradient feather
-  - word: solar eclipse shadow path
-  - word: sun dog double
-  - word: spectrograph exposure
-  - word: neon-reflecting rain puddle
-  - word: arc welding flash
-  - word: laser scanning confocal
-  - word: silhouette edge bloom
-  - word: opposition surge brightening
-  - word: sunspot cluster
-  - word: iceland spar doubling
-  - word: beauty dish punch
-  - word: umbrella bounce
-  - word: motion blur trails
-  - word: kinetic light painting
-  - word: bioluminescent
-  - word: mirror polish sheen
-  - word: motheye anti-reflection
-  - word: opalizer glow ring
-  - word: rim-lit
-  - word: backlit silhouette
-  - word: fresnel lens beam
-  - word: gobos texture projection
-  - word: fiber bundle scatter
-  - word: st elmo glow
-  - word: laser holography
-  - word: peacock feather eye
-  - word: reflected highlight trails
-  - word: phase interference pattern
-  - word: carousel light trails
-  - word: gobo leafy projection
-  - word: window grid shadow cast
-  - word: tyndall beam
-  - word: contre-jour
-  - word: barn door cutoff
-  - word: cyc wash
-  - word: gridded snoot spot
-  - word: volumetric god rays
-  - word: crepuscular rays
-  - word: bokeh balls
-  - word: subsurface scattering
-  - word: dappled light
-  - word: harsh directional
-  - word: soft diffused
+  - opposite: cyc wash
+    word: airglow night sky
+  - opposite: fluorescent tube spill
+    word: rembrandt triangle
+  - opposite: rembrandt triangle
+    word: fluorescent tube spill
+  - opposite: glitch displacement
+    word: corona halo ring
+  - opposite: corona halo ring
+    word: glitch displacement
+  - opposite: moiré interference
+    word: sun pillar vertical
+  - opposite: sun pillar vertical
+    word: moiré interference
+  - opposite: solar corona halo
+    word: thermal shimmer
+  - opposite: kinetic light painting
+    word: gobo breakup pattern
+  - opposite: thermal shimmer
+    word: solar corona halo
+  - opposite: motivated window throw
+    word: zoetrope slit strobe
+  - opposite: heiligenschein halo
+    word: light painting trails
+  - opposite: light painting trails
+    word: heiligenschein halo
+  - opposite: noctilucent cloud glow
+    word: bounce fill wrap
+  - opposite: bounce fill wrap
+    word: noctilucent cloud glow
+  - opposite: neon-reflecting rain puddle
+    word: offset mirror pair
+  - opposite: crepuscular rays
+    word: color separation filter
+  - opposite: gridded snoot spot
+    word: bounce card reflection
+  - opposite: cold shoe splash bounce
+    word: lenticular halo
+  - opposite: lenticular halo
+    word: cold shoe splash bounce
+  - opposite: zoetrope slit strobe
+    word: motivated window throw
+  - opposite: rim-lit
+    word: diffusion gradient feather
+  - opposite: tyndall beam
+    word: solar eclipse shadow path
+  - opposite: spectrograph exposure
+    word: sun dog double
+  - opposite: sun dog double
+    word: spectrograph exposure
+  - opposite: offset mirror pair
+    word: neon-reflecting rain puddle
+  - opposite: gobo leafy projection
+    word: arc welding flash
+  - opposite: silhouette edge bloom
+    word: laser scanning confocal
+  - opposite: laser scanning confocal
+    word: silhouette edge bloom
+  - opposite: fresnel lens beam
+    word: opposition surge brightening
+  - opposite: soft diffused
+    word: sunspot cluster
+  - opposite: motion blur trails
+    word: iceland spar doubling
+  - opposite: laser holography
+    word: beauty dish punch
+  - opposite: dappled light
+    word: umbrella bounce
+  - opposite: iceland spar doubling
+    word: motion blur trails
+  - opposite: gobo breakup pattern
+    word: kinetic light painting
+  - opposite: phase interference pattern
+    word: bioluminescent
+  - opposite: volumetric god rays
+    word: mirror polish sheen
+  - opposite: backlit silhouette
+    word: motheye anti-reflection
+  - opposite: contre-jour
+    word: opalizer glow ring
+  - opposite: diffusion gradient feather
+    word: rim-lit
+  - opposite: motheye anti-reflection
+    word: backlit silhouette
+  - opposite: opposition surge brightening
+    word: fresnel lens beam
+  - opposite: peacock feather eye
+    word: gobos texture projection
+  - opposite: st elmo glow
+    word: fiber bundle scatter
+  - opposite: fiber bundle scatter
+    word: st elmo glow
+  - opposite: beauty dish punch
+    word: laser holography
+  - opposite: gobos texture projection
+    word: peacock feather eye
+  - opposite: barn door cutoff
+    word: reflected highlight trails
+  - opposite: bioluminescent
+    word: phase interference pattern
+  - opposite: harsh directional
+    word: carousel light trails
+  - opposite: arc welding flash
+    word: gobo leafy projection
+  - opposite: bokeh balls
+    word: window grid shadow cast
+  - opposite: solar eclipse shadow path
+    word: tyndall beam
+  - opposite: opalizer glow ring
+    word: contre-jour
+  - opposite: reflected highlight trails
+    word: barn door cutoff
+  - opposite: airglow night sky
+    word: cyc wash
+  - opposite: bounce card reflection
+    word: gridded snoot spot
+  - opposite: mirror polish sheen
+    word: volumetric god rays
+  - opposite: color separation filter
+    word: crepuscular rays
+  - opposite: window grid shadow cast
+    word: bokeh balls
+  - opposite: tyndall beam
+    word: subsurface scattering
+  - opposite: umbrella bounce
+    word: dappled light
+  - opposite: carousel light trails
+    word: harsh directional
+  - opposite: sunspot cluster
+    word: soft diffused
   material_substance:
   - word: abalone shell
   - word: hempcrete
@@ -251,74 +436,142 @@ components:
   - word: aerogel
   - word: ferrofluid
   medium_render:
-  - word: acoustic microscopy
-  - word: platinum palladium print
-  - word: mri scan
-  - word: autochrome lumière
-  - word: marble sculpting studio
-  - word: soap film interference
-  - word: thermal fax paper
-  - word: mokulito lithograph
-  - word: daguerreian heliograph
-  - word: tintype rust tone
-  - word: gouache on board
-  - word: lithophane carving
-  - word: mezzo lithograph
-  - word: cyanotype
-  - word: scrimshaw etching
-  - word: plein air alla prima
-  - word: ultrasound echogram
-  - word: gyotaku fish print
-  - word: scanning electron microscope
-  - word: tintype pounce
-  - word: trompe-l'oeil mural
-  - word: suminagashi marbling
-  - word: kodachrome slide film
-  - word: paper quilling
-  - word: mosaic tessera
-  - word: vector illustration
-  - word: raku fired glaze
-  - word: engraved illustration
-  - word: daguerreotype mercury vapor
-  - word: tapestry point de france
-  - word: stone lithography
-  - word: botanical illustration
-  - word: x-ray film radiograph
-  - word: infrared photography
-  - word: lino cut print
-  - word: fresco secco
-  - word: ferrotype tintype
-  - word: x-ray fluoroscopy
-  - word: papercut silhouette
-  - word: linotype press print
-  - word: guilloche engraving
-  - word: radiolarian microscopy
-  - word: stained glass leading
-  - word: macrophotography focus stacking
-  - word: dye destruction print
-  - word: neon tube photograph
-  - word: kirigami cut paper
-  - word: verre églomisé
-  - word: conte crayon drawing
-  - word: anaglyph stereoscope
-  - word: gouache flat wash
-  - word: repoussé metalwork
-  - word: confocal micrograph
-  - word: schlieren photography
-  - word: polymer clay sculpture
-  - word: polaroid emulsion lift
-  - word: thermal paper receipt
-  - word: spectrograph image
-  - word: calotype negative
-  - word: mri false color
-  - word: alla prima oil
-  - word: differential interference contrast
-  - word: mri cross-section
-  - word: cryo-electron grid
-  - word: oil impasto
-  - word: charcoal sketch
-  - word: risograph print
-  - word: matte painting
+  - opposite: charcoal sketch
+    word: acoustic microscopy
+  - opposite: mri scan
+    word: platinum palladium print
+  - opposite: platinum palladium print
+    word: mri scan
+  - opposite: marble sculpting studio
+    word: autochrome lumière
+  - opposite: autochrome lumière
+    word: marble sculpting studio
+  - opposite: thermal fax paper
+    word: soap film interference
+  - opposite: soap film interference
+    word: thermal fax paper
+  - opposite: repoussé metalwork
+    word: mokulito lithograph
+  - opposite: oil impasto
+    word: daguerreian heliograph
+  - opposite: gouache on board
+    word: tintype rust tone
+  - opposite: tintype rust tone
+    word: gouache on board
+  - opposite: gouache flat wash
+    word: lithophane carving
+  - opposite: linotype press print
+    word: mezzo lithograph
+  - opposite: fresco secco
+    word: cyanotype
+  - opposite: alla prima oil
+    word: scrimshaw etching
+  - opposite: scanning electron microscope
+    word: plein air alla prima
+  - opposite: tintype pounce
+    word: ultrasound echogram
+  - opposite: differential interference contrast
+    word: gyotaku fish print
+  - opposite: plein air alla prima
+    word: scanning electron microscope
+  - opposite: ultrasound echogram
+    word: tintype pounce
+  - opposite: infrared photography
+    word: trompe-l'oeil mural
+  - opposite: x-ray film radiograph
+    word: suminagashi marbling
+  - opposite: thermal paper receipt
+    word: kodachrome slide film
+  - opposite: mri false color
+    word: paper quilling
+  - opposite: ferrotype tintype
+    word: mosaic tessera
+  - opposite: raku fired glaze
+    word: vector illustration
+  - opposite: vector illustration
+    word: raku fired glaze
+  - opposite: cryo-electron grid
+    word: engraved illustration
+  - opposite: lino cut print
+    word: daguerreotype mercury vapor
+  - opposite: confocal micrograph
+    word: tapestry point de france
+  - opposite: guilloche engraving
+    word: stone lithography
+  - opposite: calotype negative
+    word: botanical illustration
+  - opposite: suminagashi marbling
+    word: x-ray film radiograph
+  - opposite: trompe-l'oeil mural
+    word: infrared photography
+  - opposite: daguerreotype mercury vapor
+    word: lino cut print
+  - opposite: cyanotype
+    word: fresco secco
+  - opposite: mosaic tessera
+    word: ferrotype tintype
+  - opposite: papercut silhouette
+    word: x-ray fluoroscopy
+  - opposite: x-ray fluoroscopy
+    word: papercut silhouette
+  - opposite: mezzo lithograph
+    word: linotype press print
+  - opposite: stone lithography
+    word: guilloche engraving
+  - opposite: dye destruction print
+    word: radiolarian microscopy
+  - opposite: polaroid emulsion lift
+    word: stained glass leading
+  - opposite: risograph print
+    word: macrophotography focus stacking
+  - opposite: radiolarian microscopy
+    word: dye destruction print
+  - opposite: kirigami cut paper
+    word: neon tube photograph
+  - opposite: neon tube photograph
+    word: kirigami cut paper
+  - opposite: matte painting
+    word: verre églomisé
+  - opposite: anaglyph stereoscope
+    word: conte crayon drawing
+  - opposite: conte crayon drawing
+    word: anaglyph stereoscope
+  - opposite: lithophane carving
+    word: gouache flat wash
+  - opposite: mokulito lithograph
+    word: repoussé metalwork
+  - opposite: tapestry point de france
+    word: confocal micrograph
+  - opposite: spectrograph image
+    word: schlieren photography
+  - opposite: mri cross-section
+    word: polymer clay sculpture
+  - opposite: stained glass leading
+    word: polaroid emulsion lift
+  - opposite: kodachrome slide film
+    word: thermal paper receipt
+  - opposite: schlieren photography
+    word: spectrograph image
+  - opposite: botanical illustration
+    word: calotype negative
+  - opposite: paper quilling
+    word: mri false color
+  - opposite: scrimshaw etching
+    word: alla prima oil
+  - opposite: gyotaku fish print
+    word: differential interference contrast
+  - opposite: polymer clay sculpture
+    word: mri cross-section
+  - opposite: engraved illustration
+    word: cryo-electron grid
+  - opposite: daguerreian heliograph
+    word: oil impasto
+  - opposite: acoustic microscopy
+    word: charcoal sketch
+  - opposite: macrophotography focus stacking
+    word: risograph print
+  - opposite: verre églomisé
+    word: matte painting
   phenomenon_pattern:
   - word: acid etch pitting
   - word: mandelbrot zoom seahorse
@@ -628,134 +881,264 @@ components:
   - word: lattice
   - word: plume
   temporal_state:
-  - word: acid-etched
-  - word: bud-break stage
-  - word: desiccated
-  - word: granite-weathering
-  - word: hermetically sealed
-  - word: erosion-carved
-  - word: petrifying
-  - word: spore-cloud releasing
-  - word: polymerizing
-  - word: decomposing
-  - word: shell-bleached white
-  - word: composting
-  - word: shroud-wrapped tight
-  - word: quill-pinfeathering
-  - word: gilt-flaking
-  - word: bone-yellowing
-  - word: marsh gas will-o'-wisp
-  - word: leaf-yellowing vein
-  - word: paint-peeling curl
-  - word: tendril-reaching
-  - word: fermenting
-  - word: wave-undercut base
-  - word: mid-shatter
-  - word: veneer-peeling
-  - word: lightning-scarred ridge
-  - word: first-cracked shell
-  - word: root-split bathhouse
-  - word: amber-locked
-  - word: green-shoot piercing
-  - word: verdigris-covered
-  - word: barnacle-encrusting
-  - word: drought-cracked basin
-  - word: tendril-coiling
-  - word: decaying
-  - word: dendritic frost
-  - word: scar-tissue knitting
-  - word: mycelium-knitting
-  - word: glass-fogging breath
-  - word: gourd-hollowing interior
-  - word: desiccation-shrunken
-  - word: smoke-blackened remnants
-  - word: char-marked aftermath
-  - word: pith-hollowing
-  - word: bloom-spent
-  - word: wind-scoured
-  - word: parchment-brittle
-  - word: frost-bitten
-  - word: sap-rising surge
-  - word: mildew-feathering
-  - word: vine-strangled
-  - word: pitch-sealed
-  - word: bite-notched
-  - word: frost-heaved ground
-  - word: grazed-down stub
-  - word: amber-softening edge
-  - word: silk-unraveling
-  - word: iron-flaking
-  - word: salt-bleached
-  - word: tissue scarification
-  - word: nascent
-  - word: blooming
-  - word: fossilized
-  - word: freshly formed
-  - word: crystallizing
-  - word: frozen mid-transformation
-  - word: resin-entombed
+  - opposite: pith-hollowing
+    word: acid-etched
+  - opposite: granite-weathering
+    word: bud-break stage
+  - opposite: spore-cloud releasing
+    word: desiccated
+  - opposite: bud-break stage
+    word: granite-weathering
+  - opposite: bloom-spent
+    word: hermetically sealed
+  - opposite: glass-fogging breath
+    word: erosion-carved
+  - opposite: root-split bathhouse
+    word: petrifying
+  - opposite: desiccated
+    word: spore-cloud releasing
+  - opposite: grazed-down stub
+    word: polymerizing
+  - opposite: lightning-scarred ridge
+    word: decomposing
+  - opposite: mid-shatter
+    word: shell-bleached white
+  - opposite: shroud-wrapped tight
+    word: composting
+  - opposite: composting
+    word: shroud-wrapped tight
+  - opposite: wind-scoured
+    word: quill-pinfeathering
+  - opposite: dendritic frost
+    word: gilt-flaking
+  - opposite: desiccation-shrunken
+    word: bone-yellowing
+  - opposite: freshly formed
+    word: marsh gas will-o'-wisp
+  - opposite: crystallizing
+    word: leaf-yellowing vein
+  - opposite: amber-softening edge
+    word: paint-peeling curl
+  - opposite: salt-bleached
+    word: tendril-reaching
+  - opposite: wave-undercut base
+    word: fermenting
+  - opposite: fermenting
+    word: wave-undercut base
+  - opposite: shell-bleached white
+    word: mid-shatter
+  - opposite: resin-entombed
+    word: veneer-peeling
+  - opposite: decomposing
+    word: lightning-scarred ridge
+  - opposite: barnacle-encrusting
+    word: first-cracked shell
+  - opposite: petrifying
+    word: root-split bathhouse
+  - opposite: frozen mid-transformation
+    word: amber-locked
+  - opposite: fossilized
+    word: green-shoot piercing
+  - opposite: silk-unraveling
+    word: verdigris-covered
+  - opposite: first-cracked shell
+    word: barnacle-encrusting
+  - opposite: blooming
+    word: drought-cracked basin
+  - opposite: frost-bitten
+    word: tendril-coiling
+  - opposite: scar-tissue knitting
+    word: decaying
+  - opposite: gilt-flaking
+    word: dendritic frost
+  - opposite: decaying
+    word: scar-tissue knitting
+  - opposite: char-marked aftermath
+    word: mycelium-knitting
+  - opposite: erosion-carved
+    word: glass-fogging breath
+  - opposite: nascent
+    word: gourd-hollowing interior
+  - opposite: bone-yellowing
+    word: desiccation-shrunken
+  - opposite: tissue scarification
+    word: smoke-blackened remnants
+  - opposite: mycelium-knitting
+    word: char-marked aftermath
+  - opposite: acid-etched
+    word: pith-hollowing
+  - opposite: hermetically sealed
+    word: bloom-spent
+  - opposite: quill-pinfeathering
+    word: wind-scoured
+  - opposite: sap-rising surge
+    word: parchment-brittle
+  - opposite: tendril-coiling
+    word: frost-bitten
+  - opposite: parchment-brittle
+    word: sap-rising surge
+  - opposite: vine-strangled
+    word: mildew-feathering
+  - opposite: mildew-feathering
+    word: vine-strangled
+  - opposite: iron-flaking
+    word: pitch-sealed
+  - opposite: frost-heaved ground
+    word: bite-notched
+  - opposite: bite-notched
+    word: frost-heaved ground
+  - opposite: polymerizing
+    word: grazed-down stub
+  - opposite: paint-peeling curl
+    word: amber-softening edge
+  - opposite: verdigris-covered
+    word: silk-unraveling
+  - opposite: pitch-sealed
+    word: iron-flaking
+  - opposite: tendril-reaching
+    word: salt-bleached
+  - opposite: smoke-blackened remnants
+    word: tissue scarification
+  - opposite: gourd-hollowing interior
+    word: nascent
+  - opposite: drought-cracked basin
+    word: blooming
+  - opposite: green-shoot piercing
+    word: fossilized
+  - opposite: marsh gas will-o'-wisp
+    word: freshly formed
+  - opposite: leaf-yellowing vein
+    word: crystallizing
+  - opposite: amber-locked
+    word: frozen mid-transformation
+  - opposite: veneer-peeling
+    word: resin-entombed
   texture_density:
-  - word: abalone nacre ripples
-  - word: waffled waffle iron
-  - word: crystalline facets
-  - word: kinetic sand sculpture
-  - word: basket braid
-  - word: seersucker puckers
-  - word: tartan grid
-  - word: pocked concrete
-  - word: velvet pile nap
-  - word: shedding skin
-  - word: russet lichen
-  - word: eroded sandstone
-  - word: lichen-encrusted stone
-  - word: lava flow crust
-  - word: macrame knots
-  - word: macramé knotwork
-  - word: herringbone parquet
-  - word: chainmail link rings
-  - word: tufted cushion
-  - word: flocked wallpaper
-  - word: brushed suede
-  - word: shed snakeskin scales
-  - word: lichen crust
-  - word: burlap crosshatch
-  - word: cellular lace
-  - word: crochet loops
-  - word: ossuary vault ceiling
-  - word: lichen speckling
-  - word: veinous marbling
-  - word: calcified bark
-  - word: frosted rime
-  - word: knitted cable stitch
-  - word: sycamore bark flakes
-  - word: feather barbule fringe
-  - word: dense moss tuft
-  - word: polished agate sheen
-  - word: razor clam striations
-  - word: nishiki-e brocade
-  - word: hammered copper dimples
-  - word: wire mesh grid
-  - word: smelted tin
-  - word: knotted hemp
-  - word: scoriaceous pits
-  - word: lattice crosshatch
-  - word: veined marble
-  - word: pleated accordion
-  - word: fishnet mesh
-  - word: thorny briar
-  - word: jagged flint shards
-  - word: abrasion scars
-  - word: wrinkled elephant
-  - word: pebbled dash
-  - word: marquetry inlaid strips
-  - word: beehive lattice
-  - word: mossy velvet nap
-  - word: embroidered french knots
-  - word: mason jar frost
-  - word: chaotic noise
-  - word: smooth gradient
-  - word: basket weave
-  - word: rough hewn
-  - word: porous foam
-  - word: gossamer threads
-  - word: granular scatter
+  - opposite: mossy velvet nap
+    word: abalone nacre ripples
+  - opposite: crystalline facets
+    word: waffled waffle iron
+  - opposite: waffled waffle iron
+    word: crystalline facets
+  - opposite: basket braid
+    word: kinetic sand sculpture
+  - opposite: kinetic sand sculpture
+    word: basket braid
+  - opposite: granular scatter
+    word: seersucker puckers
+  - opposite: eroded sandstone
+    word: tartan grid
+  - opposite: lattice crosshatch
+    word: pocked concrete
+  - opposite: abrasion scars
+    word: velvet pile nap
+  - opposite: herringbone parquet
+    word: shedding skin
+  - opposite: fishnet mesh
+    word: russet lichen
+  - opposite: tartan grid
+    word: eroded sandstone
+  - opposite: basket weave
+    word: lichen-encrusted stone
+  - opposite: macrame knots
+    word: lava flow crust
+  - opposite: lava flow crust
+    word: macrame knots
+  - opposite: wrinkled elephant
+    word: macramé knotwork
+  - opposite: shedding skin
+    word: herringbone parquet
+  - opposite: tufted cushion
+    word: chainmail link rings
+  - opposite: chainmail link rings
+    word: tufted cushion
+  - opposite: scoriaceous pits
+    word: flocked wallpaper
+  - opposite: beehive lattice
+    word: brushed suede
+  - opposite: frosted rime
+    word: shed snakeskin scales
+  - opposite: pleated accordion
+    word: lichen crust
+  - opposite: calcified bark
+    word: burlap crosshatch
+  - opposite: pebbled dash
+    word: cellular lace
+  - opposite: ossuary vault ceiling
+    word: crochet loops
+  - opposite: crochet loops
+    word: ossuary vault ceiling
+  - opposite: gossamer threads
+    word: lichen speckling
+  - opposite: sycamore bark flakes
+    word: veinous marbling
+  - opposite: burlap crosshatch
+    word: calcified bark
+  - opposite: shed snakeskin scales
+    word: frosted rime
+  - opposite: veined marble
+    word: knitted cable stitch
+  - opposite: veinous marbling
+    word: sycamore bark flakes
+  - opposite: smelted tin
+    word: feather barbule fringe
+  - opposite: rough hewn
+    word: dense moss tuft
+  - opposite: knotted hemp
+    word: polished agate sheen
+  - opposite: chaotic noise
+    word: razor clam striations
+  - opposite: wire mesh grid
+    word: nishiki-e brocade
+  - opposite: porous foam
+    word: hammered copper dimples
+  - opposite: nishiki-e brocade
+    word: wire mesh grid
+  - opposite: feather barbule fringe
+    word: smelted tin
+  - opposite: polished agate sheen
+    word: knotted hemp
+  - opposite: flocked wallpaper
+    word: scoriaceous pits
+  - opposite: pocked concrete
+    word: lattice crosshatch
+  - opposite: knitted cable stitch
+    word: veined marble
+  - opposite: lichen crust
+    word: pleated accordion
+  - opposite: russet lichen
+    word: fishnet mesh
+  - opposite: marquetry inlaid strips
+    word: thorny briar
+  - opposite: embroidered french knots
+    word: jagged flint shards
+  - opposite: velvet pile nap
+    word: abrasion scars
+  - opposite: macramé knotwork
+    word: wrinkled elephant
+  - opposite: cellular lace
+    word: pebbled dash
+  - opposite: thorny briar
+    word: marquetry inlaid strips
+  - opposite: brushed suede
+    word: beehive lattice
+  - opposite: abalone nacre ripples
+    word: mossy velvet nap
+  - opposite: jagged flint shards
+    word: embroidered french knots
+  - opposite: smooth gradient
+    word: mason jar frost
+  - opposite: razor clam striations
+    word: chaotic noise
+  - opposite: mason jar frost
+    word: smooth gradient
+  - opposite: lichen-encrusted stone
+    word: basket weave
+  - opposite: dense moss tuft
+    word: rough hewn
+  - opposite: hammered copper dimples
+    word: porous foam
+  - opposite: lichen speckling
+    word: gossamer threads
+  - opposite: seersucker puckers
+    word: granular scatter
