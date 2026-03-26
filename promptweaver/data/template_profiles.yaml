@@ -1,0 +1,302 @@
+clip_model: openclip
+components: promptweaver/data/curated_gated.yaml
+gating: AND(internal), OR(uniqueness)
+generated_at: '2026-03-26T02:32:19.953862'
+n_samples: 1000
+profiles:
+  abstract_field:
+    clip_cross_mean: 0.3747
+    clip_internal_mean: 0.4129
+    clip_internal_range: 0.7997
+    clip_internal_score: 0.6722
+    clip_uniqueness: 0.6253
+    combined_score: 0.4154
+    internal_score_AND: 0.2054
+    n_slots: 5
+    slot_categories:
+    - phenomenon_pattern
+    - spatial_logic
+    - color_logic
+    - atmosphere_field
+    - medium_render
+    structure: '{phenomenon_pattern} in {spatial_logic} arrangement, {color_logic}, {atmosphere_field}, {medium_render}'
+    t5_cross_mean: 0.8453
+    t5_internal_mean: 0.8526
+    t5_internal_range: 0.2924
+    t5_internal_score: 0.2054
+    t5_uniqueness: 0.1547
+    theoretical_combinations: 974937600
+    uniqueness_score_OR: 0.6253
+  atmospheric_depth:
+    clip_cross_mean: 0.3888
+    clip_internal_mean: 0.4363
+    clip_internal_range: 0.7132
+    clip_internal_score: 0.6235
+    clip_uniqueness: 0.6112
+    combined_score: 0.3814
+    internal_score_AND: 0.1516
+    n_slots: 7
+    slot_categories:
+    - subject_form
+    - atmosphere_field
+    - atmosphere_field
+    - light_behavior
+    - scale_perspective
+    - color_logic
+    - medium_render
+    structure: '{subject_form} through {atmosphere_field} and {atmosphere_field}, {light_behavior}, {scale_perspective}, {color_logic},
+      {medium_render}'
+    t5_cross_mean: 0.8637
+    t5_internal_mean: 0.8874
+    t5_internal_range: 0.21
+    t5_internal_score: 0.1516
+    t5_uniqueness: 0.1363
+    theoretical_combinations: 3453975415800
+    uniqueness_score_OR: 0.6112
+  environmental:
+    clip_cross_mean: 0.3476
+    clip_internal_mean: 0.4122
+    clip_internal_range: 0.7805
+    clip_internal_score: 0.6649
+    clip_uniqueness: 0.6524
+    combined_score: 0.4145
+    internal_score_AND: 0.1766
+    n_slots: 6
+    slot_categories:
+    - scale_perspective
+    - setting_location
+    - atmosphere_field
+    - subject_form
+    - light_behavior
+    - medium_render
+    structure: '{scale_perspective} view of {setting_location}, {atmosphere_field}, {subject_form} barely visible, {light_behavior},
+      {medium_render}'
+    t5_cross_mean: 0.8417
+    t5_internal_mean: 0.8673
+    t5_internal_range: 0.2424
+    t5_internal_score: 0.1766
+    t5_uniqueness: 0.1583
+    theoretical_combinations: 53027465400
+    uniqueness_score_OR: 0.6524
+  liminal:
+    clip_cross_mean: 0.3731
+    clip_internal_mean: 0.4003
+    clip_internal_range: 0.7796
+    clip_internal_score: 0.6717
+    clip_uniqueness: 0.6269
+    combined_score: 0.3846
+    internal_score_AND: 0.1423
+    n_slots: 6
+    slot_categories:
+    - setting_location
+    - light_behavior
+    - atmosphere_field
+    - spatial_logic
+    - color_logic
+    - medium_render
+    structure: '{setting_location}, {light_behavior} from beyond, {atmosphere_field}, {spatial_logic}, {color_logic}, {medium_render}'
+    t5_cross_mean: 0.8642
+    t5_internal_mean: 0.8915
+    t5_internal_range: 0.1931
+    t5_internal_score: 0.1423
+    t5_uniqueness: 0.1358
+    theoretical_combinations: 56622547800
+    uniqueness_score_OR: 0.6269
+  material_collision:
+    clip_cross_mean: 0.3985
+    clip_internal_mean: 0.4644
+    clip_internal_range: 0.6839
+    clip_internal_score: 0.5949
+    clip_uniqueness: 0.6015
+    combined_score: 0.3657
+    internal_score_AND: 0.1298
+    n_slots: 7
+    slot_categories:
+    - material_substance
+    - material_substance
+    - phenomenon_pattern
+    - texture_density
+    - light_behavior
+    - color_logic
+    - medium_render
+    structure: '{material_substance} and {material_substance} merging, {phenomenon_pattern} at boundary, {texture_density},
+      {light_behavior}, {color_logic}, {medium_render}'
+    t5_cross_mean: 0.8696
+    t5_internal_mean: 0.9066
+    t5_internal_range: 0.1846
+    t5_internal_score: 0.1298
+    t5_uniqueness: 0.1304
+    theoretical_combinations: 3867546009600
+    uniqueness_score_OR: 0.6015
+  material_study:
+    clip_cross_mean: 0.3718
+    clip_internal_mean: 0.4017
+    clip_internal_range: 0.7325
+    clip_internal_score: 0.652
+    clip_uniqueness: 0.6282
+    combined_score: 0.4049
+    internal_score_AND: 0.1817
+    n_slots: 6
+    slot_categories:
+    - subject_form
+    - material_substance
+    - texture_density
+    - light_behavior
+    - color_logic
+    - medium_render
+    structure: '{subject_form} made of {material_substance}, {texture_density} surface, {light_behavior}, {color_logic}, {medium_render}'
+    t5_cross_mean: 0.8479
+    t5_internal_mean: 0.8628
+    t5_internal_range: 0.2486
+    t5_internal_score: 0.1817
+    t5_uniqueness: 0.1521
+    theoretical_combinations: 55709280900
+    uniqueness_score_OR: 0.6282
+  minimal_object:
+    clip_cross_mean: 0.3736
+    clip_internal_mean: 0.4067
+    clip_internal_range: 0.7509
+    clip_internal_score: 0.6564
+    clip_uniqueness: 0.6264
+    combined_score: 0.4135
+    internal_score_AND: 0.2006
+    n_slots: 6
+    slot_categories:
+    - material_substance
+    - subject_form
+    - spatial_logic
+    - light_behavior
+    - color_logic
+    - medium_render
+    structure: solitary {material_substance} {subject_form}, {spatial_logic}, {light_behavior}, {color_logic}, {medium_render}
+    t5_cross_mean: 0.8503
+    t5_internal_mean: 0.8616
+    t5_internal_range: 0.294
+    t5_internal_score: 0.2006
+    t5_uniqueness: 0.1497
+    theoretical_combinations: 59362348500
+    uniqueness_score_OR: 0.6264
+  process_state:
+    clip_cross_mean: 0.3849
+    clip_internal_mean: 0.4219
+    clip_internal_range: 0.775
+    clip_internal_score: 0.6569
+    clip_uniqueness: 0.6151
+    combined_score: 0.4148
+    internal_score_AND: 0.2145
+    n_slots: 6
+    slot_categories:
+    - temporal_state
+    - subject_form
+    - phenomenon_pattern
+    - material_substance
+    - color_logic
+    - medium_render
+    structure: '{temporal_state} {subject_form}, {phenomenon_pattern} spreading across {material_substance}, {color_logic},
+      {medium_render}'
+    t5_cross_mean: 0.8512
+    t5_internal_mean: 0.8633
+    t5_internal_range: 0.3312
+    t5_internal_score: 0.2145
+    t5_uniqueness: 0.1488
+    theoretical_combinations: 59376844800
+    uniqueness_score_OR: 0.6151
+  ruin_state:
+    clip_cross_mean: 0.3876
+    clip_internal_mean: 0.4452
+    clip_internal_range: 0.7379
+    clip_internal_score: 0.628
+    clip_uniqueness: 0.6124
+    combined_score: 0.3784
+    internal_score_AND: 0.1444
+    n_slots: 6
+    slot_categories:
+    - temporal_state
+    - setting_location
+    - atmosphere_field
+    - phenomenon_pattern
+    - color_logic
+    - medium_render
+    structure: '{temporal_state} {setting_location}, {atmosphere_field}, {phenomenon_pattern} reclaiming surfaces, {color_logic},
+      {medium_render}'
+    t5_cross_mean: 0.8652
+    t5_internal_mean: 0.8979
+    t5_internal_range: 0.2078
+    t5_internal_score: 0.1444
+    t5_uniqueness: 0.1348
+    theoretical_combinations: 56636375040
+    uniqueness_score_OR: 0.6124
+  specimen:
+    clip_cross_mean: 0.362
+    clip_internal_mean: 0.416
+    clip_internal_range: 0.7688
+    clip_internal_score: 0.6579
+    clip_uniqueness: 0.638
+    combined_score: 0.4308
+    internal_score_AND: 0.2236
+    n_slots: 5
+    slot_categories:
+    - scale_perspective
+    - material_substance
+    - subject_form
+    - medium_render
+    - color_logic
+    structure: '{scale_perspective} of {material_substance} {subject_form}, {medium_render}, {color_logic}, clinical lighting'
+    t5_cross_mean: 0.8387
+    t5_internal_mean: 0.8456
+    t5_internal_range: 0.3274
+    t5_internal_score: 0.2236
+    t5_uniqueness: 0.1613
+    theoretical_combinations: 942259500
+    uniqueness_score_OR: 0.638
+  temporal_diptych:
+    clip_cross_mean: 0.3815
+    clip_internal_mean: 0.4263
+    clip_internal_range: 0.7351
+    clip_internal_score: 0.6382
+    clip_uniqueness: 0.6185
+    combined_score: 0.4046
+    internal_score_AND: 0.1907
+    n_slots: 7
+    slot_categories:
+    - temporal_state
+    - temporal_state
+    - subject_form
+    - spatial_logic
+    - material_substance
+    - color_logic
+    - medium_render
+    structure: '{temporal_state} becoming {temporal_state}, {subject_form} in {spatial_logic}, {material_substance}, {color_logic},
+      {medium_render}'
+    t5_cross_mean: 0.8546
+    t5_internal_mean: 0.8766
+    t5_internal_range: 0.2916
+    t5_internal_score: 0.1907
+    t5_uniqueness: 0.1454
+    theoretical_combinations: 3799190304000
+    uniqueness_score_OR: 0.6185
+  textural_macro:
+    clip_cross_mean: 0.374
+    clip_internal_mean: 0.3903
+    clip_internal_range: 0.751
+    clip_internal_score: 0.6662
+    clip_uniqueness: 0.626
+    combined_score: 0.412
+    internal_score_AND: 0.1979
+    n_slots: 6
+    slot_categories:
+    - scale_perspective
+    - texture_density
+    - material_substance
+    - light_behavior
+    - color_logic
+    - medium_render
+    structure: '{scale_perspective} of {texture_density} {material_substance}, {light_behavior}, {color_logic}, {medium_render}'
+    t5_cross_mean: 0.8502
+    t5_internal_mean: 0.8561
+    t5_internal_range: 0.2789
+    t5_internal_score: 0.1979
+    t5_uniqueness: 0.1498
+    theoretical_combinations: 61374631500
+    uniqueness_score_OR: 0.626
+t5_model: google/t5-v1_1-xxl

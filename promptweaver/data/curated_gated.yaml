@@ -123,14 +123,13 @@ components:
   - word: monochromatic ochre
   - word: sepia toned nostalgia
   - word: pitch black neon green accent
-  - word: iridescent
   - word: complementary orange and blue
   - word: high contrast black and gold
   light_behavior:
   - word: airglow night sky
   - word: total internal reflection
   - word: key grip kicker light
-  - word: frenel louver slash
+  - word: fresnel louver slash
   - word: daylight fluorescence
   - word: iceland spar doubling
   - word: snoot spotlight
@@ -190,6 +189,7 @@ components:
   - word: subsurface scattering
   - word: harsh directional
   - word: soft diffused
+  - word: iridescent
   material_substance:
   - word: abalone shell
   - word: mercury
@@ -289,7 +289,6 @@ components:
   - word: alla prima oil
   - word: scanning electron microscope
   - word: verdaccio underdraw
-  - word: tintype pounce
   - word: glass plate negative
   - word: cave wall fresco
   - word: spectrograph visualization
@@ -339,7 +338,7 @@ components:
   - word: fibonacci tiling expansion
   - word: fibonacci shell uncoil
   - word: feldspar exsolution lamellae
-  - word: scarab swarm swarm
+  - word: scarab swarm
   - word: mandelbrot zoom seahorse
   - word: data moshing smear
   - word: raster scan artifact
@@ -365,7 +364,6 @@ components:
   - word: stalactite drip cone
   - word: metal pitting halo
   - word: moss sporangium burst
-  - word: datamosh smear
   - word: flame fractal flicker
   - word: fault gouge drag fold
   - word: turbulence vortex shedding
@@ -378,7 +376,6 @@ components:
   - word: rust tide creep
   - word: vhs chroma crawl
   - word: tide pool surface skim
-  - word: chromatic aberration
   - word: fractal branching
   - word: pixel sort
   - word: moiré interference
@@ -406,7 +403,6 @@ components:
   - word: inside a beehive frame
   - word: from a zipline harness
   - word: warehouse mezzanine
-  - word: crow's nest lookout
   - word: looking through binocular rings
   - word: safari vehicle roof
   - word: beneath a lily pad
@@ -529,7 +525,6 @@ components:
   - word: counterbalanced cantilever
   - word: graduated recession
   - word: interlocking pentagonal array
-  - word: shattered mirror symmetry
   - word: threshold recession
   - word: looping return
   - word: interlocking gears
@@ -611,7 +606,6 @@ components:
   - word: torus
   - word: talus
   - word: mesa
-  - word: toroid
   - word: hexahedron
   - word: apophysis
   - word: ogive
@@ -666,7 +660,6 @@ components:
   - word: pupating
   - word: sapling-thickening
   - word: spore-dispersing
-  - word: salt-cured
   - word: post-harvest drying
   - word: antler-casting
   - word: picked-clean frame
@@ -677,7 +670,6 @@ components:
   - word: tar-sealed
   - word: fermentation-bubbling
   - word: leaf-litter fermentation
-  - word: compost-steaming
   - word: chrysalis-stage
   - word: fruiting
   - word: scar-tissue knitting
@@ -749,7 +741,6 @@ components:
   - word: moth-eaten lacework
   - word: tree ring grooves
   - word: hammered pewter dents
-  - word: concentric rings
   - word: reef wrinkles
   - word: intricate filigree
   - word: thorny briar
