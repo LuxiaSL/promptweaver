@@ -464,17 +464,21 @@ def main() -> None:
         logger.error(f"Input not found: {args.input}")
         sys.exit(1)
 
-    # Load candidates
-    candidates_by_cat = load_components_yaml(args.input)
+    # Load ALL categories (needed for cross-category contamination even when
+    # selecting a subset)
+    all_candidates = load_components_yaml(args.input)
 
-    if args.categories:
-        candidates_by_cat = {
-            k: v for k, v in candidates_by_cat.items() if k in args.categories
-        }
-
-    if not candidates_by_cat:
+    if not all_candidates:
         logger.error("No categories found in input")
         sys.exit(1)
+
+    # Determine which categories to actually select from
+    select_cats = set(all_candidates.keys())
+    if args.categories:
+        select_cats = {c for c in args.categories if c in all_candidates}
+        if not select_cats:
+            logger.error(f"No matching categories: {args.categories}")
+            sys.exit(1)
 
     t5_model = None if args.clip_only else args.t5_model
 
@@ -482,13 +486,14 @@ def main() -> None:
     print("DIVERSITY SELECTION PIPELINE")
     print(f"{'='*60}")
     print(f"  Input:       {args.input}")
-    print(f"  Categories:  {len(candidates_by_cat)}")
+    print(f"  All categories:  {len(all_candidates)}")
+    print(f"  Selecting:   {len(select_cats)} — {sorted(select_cats)}")
     print(f"  Target k:    {args.k} {'(auto-k enabled)' if args.auto_k else ''}")
     print(f"  Alpha:       {args.alpha}")
     print(f"  CLIP model:  {args.clip_model}")
     print(f"  T5 model:    {t5_model or '(disabled)'}")
-    total_candidates = sum(len(v) for v in candidates_by_cat.values())
-    print(f"  Total candidates: {total_candidates}")
+    total_candidates = sum(len(v) for c, v in all_candidates.items() if c in select_cats)
+    print(f"  Total candidates (selected cats): {total_candidates}")
 
     # Initialize embedder
     embedder = DualSpaceEmbedder(
@@ -496,18 +501,65 @@ def main() -> None:
         t5_model=t5_model,
     )
 
-    # Pre-compute embeddings for all categories (needed for cross-category contamination)
+    # Pre-compute embeddings for ALL categories (cross-category contamination
+    # needs the full picture even when selecting a subset)
     logger.info("\nPre-computing category embeddings for contamination check...")
     all_cat_embeddings: dict[str, DualEmbeddings] = {}
-    for cat, words in candidates_by_cat.items():
+    for cat, words in all_candidates.items():
         all_cat_embeddings[cat] = embedder.embed(words)
+
+    # Iterative contamination reallocation: items dropped from one category
+    # may be valid candidates for the category they're closest to. We loop
+    # until no more reallocations happen (typically 2-3 passes).
+    working_candidates = {
+        cat: list(words) for cat, words in all_candidates.items()
+        if cat in select_cats
+    }
+
+    MAX_REALLOC_PASSES = 5
+    for realloc_pass in range(MAX_REALLOC_PASSES):
+        # Run contamination check on all categories being selected
+        reallocated = 0
+        for cat in sorted(select_cats):
+            emb = embedder.embed(working_candidates[cat])
+            contaminated = cross_category_contamination(
+                {**{k: v for k, v in all_cat_embeddings.items() if k != cat},
+                 cat: emb},
+                alpha=args.alpha,
+            )
+
+            for item in contaminated:
+                if item["assigned"] != cat or item["delta"] <= 0.01:
+                    continue
+                target = item["closest"]
+                word = item["word"]
+
+                # Only reallocate to categories we're selecting AND if the
+                # word isn't already there
+                if (target in select_cats
+                        and word in working_candidates[cat]
+                        and word not in working_candidates.get(target, [])):
+                    working_candidates[cat].remove(word)
+                    working_candidates.setdefault(target, []).append(word)
+                    reallocated += 1
+
+        if reallocated == 0:
+            if realloc_pass > 0:
+                logger.info(f"  Reallocation converged after {realloc_pass + 1} passes")
+            break
+        else:
+            logger.info(f"  Reallocation pass {realloc_pass + 1}: moved {reallocated} items between categories")
+
+            # Update embeddings for affected categories
+            for cat in select_cats:
+                all_cat_embeddings[cat] = embedder.embed(working_candidates[cat])
 
     # Run selection pipeline per category
     results: dict[str, SelectionResult] = {}
-    for cat, candidates in sorted(candidates_by_cat.items()):
+    for cat in sorted(select_cats):
         results[cat] = select_category(
             category=cat,
-            candidates=candidates,
+            candidates=working_candidates[cat],
             embedder=embedder,
             all_category_embeddings={
                 k: v for k, v in all_cat_embeddings.items() if k != cat
