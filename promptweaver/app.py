@@ -183,7 +183,11 @@ class PromptWeaverApp(App[None]):
         Binding("q", "quit_app", "EXIT"),
     ]
 
-    def __init__(self, db_path: Optional[Path] = None) -> None:
+    def __init__(
+        self,
+        db_path: Optional[Path] = None,
+        hyper: bool = False,
+    ) -> None:
         super().__init__()
         self.engine = CombinatorialEngine()
         self.store = PromptStore(db_path=db_path)
@@ -195,7 +199,8 @@ class PromptWeaverApp(App[None]):
         self._hacker_visible: bool = False
         self._favorites: set[str] = set()
         self._auto_timer: Optional[Timer] = None
-        self._hyper_visible: bool = False
+        self._hyper_visible: bool = hyper
+        self._start_hyper: bool = hyper
 
     def compose(self) -> ComposeResult:
         yield MatrixBanner()
@@ -216,6 +221,14 @@ class PromptWeaverApp(App[None]):
     def on_mount(self) -> None:
         self._favorites = self.store.get_favorited_hashes()
         self.query_one("#history-log", HistoryLog).set_favorites(self._favorites)
+
+        # Start in hyperobject mode if --hyper flag was passed
+        if self._start_hyper:
+            rain = self.query_one("#matrix-rain", MatrixRain)
+            hyper = self.query_one("#hyperobject-viewport", HyperobjectViewport)
+            rain.display = False
+            hyper.display = True
+
         self._generate()
 
     # ── palette ───────────────────────────────────────────────────────
