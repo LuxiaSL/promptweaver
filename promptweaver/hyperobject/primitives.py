@@ -411,12 +411,12 @@ def _make_cube(radius: float) -> Mesh:
     # 8 vertices ordered: 0(-,-,-) 1(-,-,+) 2(-,+,-) 3(-,+,+)
     #                      4(+,-,-) 5(+,-,+) 6(+,+,-) 7(+,+,+)
     faces: list[tuple[int, ...]] = [
-        (0, 4, 6, 2),  # front  (-z face)
-        (5, 1, 3, 7),  # back   (+z face)
-        (0, 1, 5, 4),  # bottom (-y face)
-        (2, 6, 7, 3),  # top    (+y face)
-        (0, 2, 3, 1),  # left   (-x face)
-        (4, 5, 7, 6),  # right  (+x face)
+        (0, 2, 6, 4),  # front  (-z face, outward normal -Z)
+        (5, 7, 3, 1),  # back   (+z face, outward normal +Z)
+        (0, 4, 5, 1),  # bottom (-y face, outward normal -Y)
+        (2, 3, 7, 6),  # top    (+y face, outward normal +Y)
+        (0, 1, 3, 2),  # left   (-x face, outward normal -X)
+        (4, 6, 7, 5),  # right  (+x face, outward normal +X)
     ]
     mesh = Mesh(vertices=vertices, faces=faces)
     mesh.compute_normals()
@@ -558,6 +558,7 @@ def make_lorenz_attractor(
     scale = 1.5 / max_r
 
     cloud = PointCloud()
+    cloud.norm_scale = scale
     n = len(points)
     for i, pt in enumerate(points):
         bright = 0.1 + 0.9 * (i / max(n - 1, 1))

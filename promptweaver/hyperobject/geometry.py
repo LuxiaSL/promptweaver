@@ -117,6 +117,7 @@ class PointCloud:
 
     points: list[Vec3] = field(default_factory=list)
     brightness: list[float] = field(default_factory=list)  # 0.0–1.0 per point
+    norm_scale: float = 1.0  # normalization scale applied to raw coordinates
 
     def add(self, point: Vec3, bright: float = 1.0) -> None:
         self.points.append(point)
