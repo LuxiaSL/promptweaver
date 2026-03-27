@@ -83,12 +83,9 @@ class CharGrid:
 
     def clear(self) -> None:
         """Reset to blank state."""
-        for cell in self.cells:
-            cell.char = " "
-            cell.style = ""
-            cell.depth = 1.0
-        for i in range(len(self.zbuf)):
-            self.zbuf[i] = 1.0
+        n = self.width * self.height
+        self.cells = [Cell() for _ in range(n)]
+        self.zbuf = [1.0] * n
 
     def to_rich_text(self) -> Text:
         """Convert the grid to a Rich Text object for Textual rendering."""

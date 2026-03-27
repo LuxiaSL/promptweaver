@@ -107,7 +107,7 @@ class TransitionState:
 
     phase: TransitionPhase = TransitionPhase.NONE
     progress: float = 0.0  # 0→1 within current phase
-    total_frames: int = 72  # ~4 seconds at 18fps
+    total_frames: int = 36  # ~2 seconds at 18fps (per spec §9.1)
     current_frame: int = 0
 
     # Phase boundaries (as fraction of total)
@@ -471,8 +471,12 @@ class Scene:
     # Idle tracking: seconds since last prompt
     _idle_time: float = 0.0
     _idle_tesseract_active: bool = False
-    IDLE_THRESHOLD: float = 10.0       # seconds before tesseract starts appearing
-    IDLE_FULL_MORPH: float = 20.0      # seconds at which tesseract fully replaces geometry
+    IDLE_THRESHOLD: float = 15.0       # seconds before tesseract starts appearing
+    IDLE_FULL_MORPH: float = 25.0      # seconds at which tesseract fully replaces geometry
+
+    # Heightmap animation throttle (avoids recomputing every frame)
+    _hmap_accum: float = 0.0
+    _HMAP_INTERVAL: float = 0.15  # ~6.7 updates/sec — smooth enough for noise
 
     # Voxel erosion state
     _voxel_timer: float = 0.0
@@ -524,9 +528,18 @@ class Scene:
     # ── heightmap animation ───────────────────────────────────────────
 
     def _animate_heightmap(self, dt: float) -> None:
-        """Scroll noise across the heightmap surface."""
+        """Scroll noise across the heightmap surface.
+
+        Throttled to ~6-7 updates/sec to avoid recomputing the full
+        noise field every frame (pure-Python noise3 is the hot path).
+        """
         if self.heightmap is None:
             return
+        self._hmap_accum += dt
+        if self._hmap_accum < self._HMAP_INTERVAL:
+            return
+        self._hmap_accum = 0.0
+
         t = self.anim.time
         freq = 0.3
         amp = 0.4
@@ -638,20 +651,20 @@ class Scene:
         if self.cloud is None or self.cloud.count == 0:
             return
 
-        # Initialize Lorenz state from the last point
+        # Initialize Lorenz state from the last point by reversing the
+        # normalization that make_lorenz_attractor applied.
         if self._lorenz_state is None:
             last = self.cloud.points[-1]
-            # Reverse the normalization to get back to Lorenz coords
-            # (approximate — the points are normalized to radius ~1.5)
-            scale = 25.0  # approximate Lorenz bounding box
-            self._lorenz_state = (
-                last.x * scale, last.y * scale, last.z * scale
-            )
+            ns = self.cloud.norm_scale
+            if ns < 1e-10:
+                ns = 0.03  # safe fallback
+            inv = 1.0 / ns
+            self._lorenz_state = (last.x * inv, last.y * inv, last.z * inv)
 
         sigma, rho, beta = 10.0, 28.0, 8.0 / 3.0
         ldt = 0.005
         x, y, z = self._lorenz_state
-        scale = 25.0
+        ns = self.cloud.norm_scale
 
         # Integrate a few steps per frame
         steps = max(1, int(dt * 200 * self.anim.speed_scale))
@@ -663,11 +676,8 @@ class Scene:
 
         self._lorenz_state = (x, y, z)
 
-        # Normalize and add to cloud
-        nx = x / scale
-        ny = (y / scale) - 0.5
-        nz = z / scale - 0.5
-        self.cloud.add(Vec3(nx, ny, nz), bright=1.0)
+        # Normalize using the same scale as the original cloud
+        self.cloud.add(Vec3(x * ns, y * ns, z * ns), bright=1.0)
 
         # Fade old points
         max_pts = 5000
