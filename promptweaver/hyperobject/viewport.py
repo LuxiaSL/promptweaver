@@ -14,55 +14,15 @@ from textual.timer import Timer
 from textual.widgets import Static
 
 from ..models import GeneratedPrompt
-from ..palettes import Palette, PALETTES, DEFAULT_PALETTE_NAME
+from ..palettes import Palette
 
-
-# Late imports to avoid circular deps — these are resolved at runtime
-# when the first prompt arrives.
-_scene_mod = None
-_rasterizer_mod = None
-_interpreter_mod = None
-_primitives_mod = None
-_state_mod = None
-_dynamics_mod = None
-
-
-def _lazy_imports() -> bool:
-    """Import heavy modules on first use."""
-    global _scene_mod, _rasterizer_mod, _interpreter_mod
-    global _primitives_mod, _state_mod, _dynamics_mod
-    if _scene_mod is not None:
-        return True
-    try:
-        from . import scene as _sm
-        from . import rasterizer as _rm
-        from . import interpreter as _im
-        _scene_mod = _sm
-        _rasterizer_mod = _rm
-        _interpreter_mod = _im
-
-        # Optional modules — fail gracefully
-        try:
-            from . import primitives as _pm
-            _primitives_mod = _pm
-        except Exception:
-            _primitives_mod = None
-
-        try:
-            from . import state as _stm
-            _state_mod = _stm
-        except Exception:
-            _state_mod = None
-
-        try:
-            from . import dynamics as _dm
-            _dynamics_mod = _dm
-        except Exception:
-            _dynamics_mod = None
-
-        return True
-    except Exception:
-        return False
+from .scene import Scene, GeomKind
+from .rasterizer import AsciiRasterizer
+from .interpreter import TEMPLATE_GEOM, configure_scene, interpret_mesh_detail
+from .state import VisualState
+from .embedding_cache import EmbeddingCache
+from .dynamics import compute_dynamics
+from . import primitives
 
 
 class HyperobjectViewport(Static):
@@ -87,11 +47,10 @@ class HyperobjectViewport(Static):
         super().__init__(**kwargs)
         self._timer: Optional[Timer] = None
         self._palette: Optional[Palette] = None
-        self._scene: object = None  # Scene (lazy)
-        self._rasterizer: object = None  # AsciiRasterizer (lazy)
-        self._visual_state: object = None  # VisualState (lazy)
-        self._embedding_cache: object = None  # EmbeddingCache (lazy)
-        self._last_frame_time: float = 0.0
+        self._scene: Optional[Scene] = None
+        self._rasterizer: Optional[AsciiRasterizer] = None
+        self._visual_state: Optional[VisualState] = None
+        self._embedding_cache: Optional[EmbeddingCache] = None
         self._frame_count: int = 0
         self._initialized: bool = False
         self._current_template: str = ""
@@ -111,9 +70,8 @@ class HyperobjectViewport(Static):
     def set_palette(self, palette: Palette) -> None:
         """Update the color palette (called when template changes)."""
         self._palette = palette
-        if self._scene is not None and _scene_mod is not None:
-            scene = self._scene
-            scene.styles = (  # type: ignore[attr-defined]
+        if self._scene is not None:
+            self._scene.styles = (
                 palette.bright,
                 palette.primary,
                 palette.rain_mid,
@@ -126,46 +84,41 @@ class HyperobjectViewport(Static):
         Triggers a transition and reconfigures the scene based on
         the prompt's template and components.
         """
-        if not _lazy_imports():
-            return
-
         self._ensure_initialized()
+
+        scene = self._scene
+        if scene is None:
+            return
 
         # Update visual state (component persistence)
         changed: set[str] = set()
-        if _state_mod is not None and self._visual_state is not None:
-            changed = self._visual_state.apply_prompt(prompt)  # type: ignore[union-attr]
+        if self._visual_state is not None:
+            changed = self._visual_state.apply_prompt(prompt)
 
         # Determine if we need a geometry change (template switch)
         template_changed = prompt.template_id != self._current_template
         self._current_template = prompt.template_id
 
-        scene = self._scene
-        assert scene is not None and _scene_mod is not None
-
         if template_changed:
-            # Full transition: dissolve → tesseract → new geometry
-            scene.start_transition()  # type: ignore[union-attr]
+            scene.start_transition()
             self._build_geometry(prompt.template_id)
 
-        # Apply visual parameters from components
-        vs = self._visual_state
-        if _interpreter_mod is not None and vs is not None:
-            slots = vs.slots if hasattr(vs, "slots") else {}  # type: ignore[union-attr]
-            _interpreter_mod.configure_scene(scene, slots, prompt.template_id)  # type: ignore[arg-type]
+        # Apply all visual parameters from the accumulated state
+        if self._visual_state is not None:
+            configure_scene(scene, self._visual_state.slots, prompt.template_id)
 
         # Update palette styles on scene
         if self._palette is not None:
             p = self._palette
-            scene.styles = (p.bright, p.primary, p.rain_mid, p.rain_dim)  # type: ignore[attr-defined]
+            scene.styles = (p.bright, p.primary, p.rain_mid, p.rain_dim)
 
-        # Compute embedding dynamics if available
-        if _dynamics_mod is not None and vs is not None:
+        # Compute embedding dynamics
+        if self._visual_state is not None:
             try:
-                dynamics = _dynamics_mod.compute_dynamics(vs, self._embedding_cache)
-                scene.anim.speed_scale *= dynamics.energy * 1.5 + 0.5  # type: ignore[union-attr]
+                dyn = compute_dynamics(self._visual_state, self._embedding_cache)
+                scene.anim.speed_scale *= dyn.energy * 1.5 + 0.5
             except Exception:
-                pass  # Embedding dynamics are optional
+                pass
 
     # ── initialization ────────────────────────────────────────────────
 
@@ -175,36 +128,29 @@ class HyperobjectViewport(Static):
             return
         self._initialized = True
 
-        assert _scene_mod is not None and _rasterizer_mod is not None
+        self._scene = Scene()
 
-        # Create scene with tesseract as initial geometry
-        self._scene = _scene_mod.Scene()
-        scene = self._scene
-
-        # Load tesseract geometry (always available for transitions)
-        if _primitives_mod is not None:
-            try:
-                verts, edges = _primitives_mod.make_tesseract()
-                scene.tesseract_verts = verts  # type: ignore[union-attr]
-                scene.tesseract_edges = edges  # type: ignore[union-attr]
-                scene.geom_kind = _scene_mod.GeomKind.TESSERACT  # type: ignore[union-attr]
-            except Exception:
-                pass
-
-        # Create rasterizer (sized to widget)
-        w, h = max(self.size.width, 10), max(self.size.height, 3)
-        self._rasterizer = _rasterizer_mod.AsciiRasterizer(w, h)
-
-        # Create visual state
-        if _state_mod is not None:
-            try:
-                self._visual_state = _state_mod.VisualState()
-            except Exception:
-                pass
-
-        # Load embedding cache
+        # Load tesseract (always available for transitions + idle)
         try:
-            from .embedding_cache import EmbeddingCache
+            verts, edges = primitives.make_tesseract()
+            self._scene.tesseract_verts = verts
+            self._scene.tesseract_edges = edges
+            self._scene.geom_kind = GeomKind.TESSERACT
+        except Exception:
+            pass
+
+        # Create rasterizer
+        w, h = max(self.size.width, 10), max(self.size.height, 3)
+        self._rasterizer = AsciiRasterizer(w, h)
+
+        # Visual state accumulator
+        try:
+            self._visual_state = VisualState()
+        except Exception:
+            pass
+
+        # Embedding cache (optional — works without it)
+        try:
             self._embedding_cache = EmbeddingCache()
         except Exception:
             self._embedding_cache = None
@@ -212,78 +158,79 @@ class HyperobjectViewport(Static):
         # Apply initial palette
         if self._palette is not None:
             p = self._palette
-            scene.styles = (p.bright, p.primary, p.rain_mid, p.rain_dim)  # type: ignore[union-attr]
+            self._scene.styles = (p.bright, p.primary, p.rain_mid, p.rain_dim)
 
     def _build_geometry(self, template_id: str) -> None:
         """Construct the geometry for a given template."""
-        if _primitives_mod is None or self._scene is None:
+        scene = self._scene
+        if scene is None:
             return
 
-        scene = self._scene
-        assert _interpreter_mod is not None
+        geom_kind = TEMPLATE_GEOM.get(template_id, GeomKind.MESH_FILLED)
+        scene.geom_kind = geom_kind
 
-        geom_kind = _interpreter_mod.TEMPLATE_GEOM.get(
-            template_id, _scene_mod.GeomKind.MESH_FILLED  # type: ignore[union-attr]
+        # Get mesh detail from subject_form if available
+        subject_words = (
+            self._visual_state.get("subject_form")
+            if self._visual_state else []
         )
-        scene.geom_kind = geom_kind  # type: ignore[union-attr]
 
         try:
             if template_id == "material_study":
-                detail = _interpreter_mod.interpret_mesh_detail(
-                    (self._visual_state.slots if self._visual_state and hasattr(self._visual_state, "slots") else {}).get("subject_form", [])  # type: ignore[union-attr]
+                detail = interpret_mesh_detail(subject_words)
+                scene.mesh = primitives.make_icosahedron(
+                    subdivisions=min(detail, 2)
                 )
-                scene.mesh = _primitives_mod.make_icosahedron(subdivisions=min(detail, 2))  # type: ignore[union-attr]
 
             elif template_id == "textural_macro":
-                scene.heightmap = _primitives_mod.make_noise_surface()  # type: ignore[union-attr]
-                scene.heightmap_mesh = None  # type: ignore[union-attr]
+                scene.heightmap = primitives.make_noise_surface()
+                scene.heightmap_mesh = None
 
             elif template_id == "environmental":
-                scene.heightmap = _primitives_mod.make_terrain()  # type: ignore[union-attr]
-                scene.heightmap_mesh = None  # type: ignore[union-attr]
+                scene.heightmap = primitives.make_terrain()
+                scene.heightmap_mesh = None
 
             elif template_id == "atmospheric_depth":
-                scene.cloud = _primitives_mod.make_particle_nebula()  # type: ignore[union-attr]
+                scene.cloud = primitives.make_particle_nebula()
 
             elif template_id == "process_state":
-                scene.mesh = _primitives_mod.make_metaballs()  # type: ignore[union-attr]
+                scene.mesh = primitives.make_metaballs()
 
             elif template_id == "material_collision":
-                mesh_a, mesh_b = _primitives_mod.make_intersecting_solids()
-                scene.mesh = mesh_a  # type: ignore[union-attr]
-                scene.mesh_b = mesh_b  # type: ignore[union-attr]
+                mesh_a, mesh_b = primitives.make_intersecting_solids()
+                scene.mesh = mesh_a
+                scene.mesh_b = mesh_b
 
             elif template_id == "specimen":
-                scene.mesh = _primitives_mod.make_wireframe_organism()  # type: ignore[union-attr]
+                scene.mesh = primitives.make_wireframe_organism()
 
             elif template_id == "minimal_object":
-                scene.mesh = _primitives_mod.make_torus()  # type: ignore[union-attr]
+                scene.mesh = primitives.make_torus()
 
             elif template_id == "abstract_field":
-                scene.cloud = _primitives_mod.make_lorenz_attractor()  # type: ignore[union-attr]
+                scene.cloud = primitives.make_lorenz_attractor()
 
             elif template_id == "temporal_diptych":
-                mesh_a, mesh_b = _primitives_mod.make_split_morph_pair()
-                scene.mesh = mesh_a  # type: ignore[union-attr]
-                scene.mesh_b = mesh_b  # type: ignore[union-attr]
+                mesh_a, mesh_b = primitives.make_split_morph_pair()
+                scene.mesh = mesh_a
+                scene.mesh_b = mesh_b
 
             elif template_id == "liminal":
-                scene.mesh = _primitives_mod.make_corridor()  # type: ignore[union-attr]
+                scene.mesh = primitives.make_corridor()
 
             elif template_id == "ruin_state":
-                mesh, groups = _primitives_mod.make_fragmenting_solid()
-                scene.mesh = mesh  # type: ignore[union-attr]
-                scene.fragment_groups = groups  # type: ignore[union-attr]
+                mesh, groups = primitives.make_fragmenting_solid()
+                scene.mesh = mesh
+                scene.fragment_groups = groups
 
             elif template_id == "essence":
-                scene.mesh = _primitives_mod.make_mobius_strip()  # type: ignore[union-attr]
+                scene.mesh = primitives.make_mobius_strip()
 
             elif template_id == "site_decay":
-                scene.voxels = _primitives_mod.make_voxel_grid()  # type: ignore[union-attr]
+                scene.voxels = primitives.make_voxel_grid()
 
         except Exception:
-            # If any geometry factory fails, fall back to tesseract
-            scene.geom_kind = _scene_mod.GeomKind.TESSERACT  # type: ignore[union-attr]
+            scene.geom_kind = GeomKind.TESSERACT
 
     # ── render loop ───────────────────────────────────────────────────
 
@@ -292,13 +239,7 @@ class HyperobjectViewport(Static):
         now = time.monotonic()
         dt = now - self._last_tick if self._last_tick > 0 else self.FRAME_INTERVAL
         self._last_tick = now
-
-        # Cap dt to avoid huge jumps after pauses
         dt = min(dt, 0.1)
-
-        if not _lazy_imports() or not self._initialized:
-            self._render_placeholder()
-            return
 
         scene = self._scene
         rast = self._rasterizer
@@ -308,23 +249,22 @@ class HyperobjectViewport(Static):
 
         # Resize rasterizer if widget size changed
         w, h = max(self.size.width, 10), max(self.size.height, 3)
-        rast.resize(w, h)  # type: ignore[union-attr]
+        rast.resize(w, h)
 
-        # Advance animation
-        scene.tick(dt)  # type: ignore[union-attr]
+        # Advance animation + particles
+        scene.tick(dt)
 
-        # Render
-        scene.render(rast)  # type: ignore[union-attr]
+        # Render geometry + particles + postfx
+        scene.render(rast)
 
-        # Convert to Rich Text and display
-        text = rast.grid.to_rich_text()  # type: ignore[union-attr]
-        self.update(text)
-
+        # Output
+        self.update(rast.grid.to_rich_text())
         self._frame_count += 1
 
     def _render_placeholder(self) -> None:
         """Show a simple placeholder before initialization."""
         p = self._palette
         style = p.dim if p else "dim green"
-        text = Text(f"  // hyperobject viewport awaiting generation...", style=style)
-        self.update(text)
+        self.update(Text(
+            "  // hyperobject viewport awaiting generation...", style=style
+        ))

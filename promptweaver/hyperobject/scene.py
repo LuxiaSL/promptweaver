@@ -24,9 +24,25 @@ from .lut import (
     project_4d_to_3d,
     smoothstep,
 )
-from .geometry import Mesh, PointCloud, VoxelGrid, HeightMap
+from .geometry import Mesh, PointCloud, VoxelGrid, HeightMap, noise3
 from .rasterizer import AsciiRasterizer, CharGrid, Light, DEFAULT_LIGHT
 from .transform import Camera, ProjectionContext
+
+# Late import to avoid circular deps
+_postfx = None
+_particles_mod = None
+
+
+def _ensure_fx() -> None:
+    global _postfx, _particles_mod
+    if _postfx is None:
+        try:
+            from . import postfx as _pfx
+            from . import particles as _ptc
+            _postfx = _pfx
+            _particles_mod = _ptc
+        except Exception:
+            pass
 
 
 # ── geometry type tag ───────────────────────────────────────────────────
@@ -173,6 +189,12 @@ class Scene:
     anim: AnimationState = field(default_factory=AnimationState)
     transition: TransitionState = field(default_factory=TransitionState)
 
+    # Post-processing effects (from medium_render)
+    postfx_names: list[str] = field(default_factory=list)
+
+    # Particle system (from atmosphere_field)
+    particle_system: object = None  # ParticleSystem or None
+
     # Fragment groups for ruin_state dissolve
     fragment_groups: list[list[int]] = field(default_factory=list)
 
@@ -195,6 +217,12 @@ class Scene:
             self._render_transition(rast, width, height)
         else:
             self._render_geometry(rast, width, height)
+
+        # Render particles on top of geometry
+        self._render_particles(rast, width, height)
+
+        # Apply post-processing effects
+        self._apply_postfx(rast.grid)
 
     def _render_geometry(self, rast: AsciiRasterizer, w: int, h: int) -> None:
         """Render the active geometry."""
@@ -310,6 +338,47 @@ class Scene:
                     cell.char = " "
                     cell.style = ""
 
+    # ── particles ──────────────────────────────────────────────────────
+
+    def _render_particles(self, rast: AsciiRasterizer, w: int, h: int) -> None:
+        """Render ambient particles around the geometry."""
+        if self.particle_system is None:
+            return
+        _ensure_fx()
+        if _particles_mod is None:
+            return
+
+        model = Mat4.identity()  # particles are in world space
+        ctx = ProjectionContext.build(model, self.camera, w, h)
+
+        ps = self.particle_system
+        if not hasattr(ps, 'particles'):
+            return
+
+        bright_s, primary_s, mid_s, dim_s = self.styles
+        for p in ps.particles:
+            sp = ctx.project_vertex(p.pos)
+            if sp is None:
+                continue
+            # Depth behind main geometry (particles are background)
+            adjusted_depth = min(sp.depth + 0.1, 1.0)
+            style = dim_s if p.brightness < 0.5 else primary_s
+            rast.grid.write(sp.col, sp.row, p.char, style, adjusted_depth)
+
+    # ── post-processing ───────────────────────────────────────────────
+
+    def _apply_postfx(self, grid: CharGrid) -> None:
+        """Apply post-processing effects to the completed grid."""
+        if not self.postfx_names:
+            return
+        _ensure_fx()
+        if _postfx is None:
+            return
+        try:
+            _postfx.apply_effects(grid, self.postfx_names)
+        except Exception:
+            pass  # never let postfx crash the renderer
+
     # ── animation tick ────────────────────────────────────────────────
 
     def tick(self, dt: float) -> None:
@@ -317,6 +386,35 @@ class Scene:
         self.anim.tick(dt)
         if self.transition.active:
             self.transition.tick()
+
+        # Tick particles
+        if self.particle_system is not None and hasattr(self.particle_system, 'tick'):
+            try:
+                self.particle_system.tick(dt)
+            except Exception:
+                pass
+
+        # Animate heightmap (scroll noise for textural_macro/environmental)
+        if self.geom_kind == GeomKind.HEIGHTMAP and self.heightmap is not None:
+            self._animate_heightmap(dt)
+
+    def _animate_heightmap(self, dt: float) -> None:
+        """Scroll noise across the heightmap surface."""
+        if self.heightmap is None:
+            return
+        t = self.anim.time
+        freq = 0.3
+        amp = 0.4
+        for z in range(self.heightmap.depth):
+            for x in range(self.heightmap.width):
+                h = noise3(
+                    x * freq + t * 0.3,
+                    0.0,
+                    z * freq + t * 0.2,
+                ) * amp
+                self.heightmap.set(x, z, h)
+        # Invalidate cached mesh so it gets rebuilt
+        self.heightmap_mesh = None
 
     def start_transition(self) -> None:
         """Begin the dissolve → tesseract → form sequence."""

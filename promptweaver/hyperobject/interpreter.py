@@ -13,8 +13,11 @@ from typing import Optional
 
 from .lut import Vec3
 from .geometry import Mesh, PointCloud, VoxelGrid, HeightMap
+from .particles import ParticleSystem, particle_system_for_word
+from .postfx import effect_for_word
 from .rasterizer import Light
 from .scene import GeomKind, Scene
+from .shaders import ShaderRamp, shader_for_word, DEFAULT_SHADER
 from .transform import Camera
 
 
@@ -158,17 +161,42 @@ def interpret_mesh_detail(words: list[str]) -> int:
     return idx
 
 
+def interpret_shader(words: list[str]) -> ShaderRamp:
+    """Map material_substance word(s) to a ShaderRamp."""
+    if not words:
+        return DEFAULT_SHADER
+    return shader_for_word(words[0])
+
+
+def interpret_postfx(words: list[str]) -> list[str]:
+    """Map medium_render word(s) to a list of post-processing effect names."""
+    if not words:
+        return []
+    return effect_for_word(words[0])
+
+
+def interpret_particles(words: list[str]) -> ParticleSystem | None:
+    """Map atmosphere_field word(s) to a ParticleSystem."""
+    if not words:
+        return None
+    return particle_system_for_word(words[0])
+
+
 def configure_scene(
     scene: Scene,
     visual_state: dict[str, list[str]],
     template_id: str,
 ) -> None:
-    """Apply visual state parameters to a scene.
+    """Apply all 12 visual state parameters to a scene.
 
-    Reads from all 12 component slots in the visual state and configures
-    the scene's light, camera, animation speed, etc.
+    Reads from every component slot in the visual state and configures
+    the scene's geometry kind, light, camera, shader, post-fx, particles,
+    and animation speed.
     """
-    # Light
+    # Geometry kind from template
+    scene.geom_kind = TEMPLATE_GEOM.get(template_id, GeomKind.MESH_FILLED)
+
+    # Light (from light_behavior)
     scene.light = interpret_light(visual_state.get("light_behavior", []))
 
     # Camera (base from spatial_logic, adjusted by scale_perspective)
@@ -176,8 +204,15 @@ def configure_scene(
     camera = interpret_zoom(visual_state.get("scale_perspective", []), camera)
     scene.camera = camera
 
-    # Animation speed
+    # Animation speed (from temporal_state)
     scene.anim.speed_scale = interpret_speed(visual_state.get("temporal_state", []))
 
-    # Geometry kind from template
-    scene.geom_kind = TEMPLATE_GEOM.get(template_id, GeomKind.MESH_FILLED)
+    # Surface shader (from material_substance)
+    shader = interpret_shader(visual_state.get("material_substance", []))
+    scene.shader_chars = shader.chars
+
+    # Post-processing effects (from medium_render)
+    scene.postfx_names = interpret_postfx(visual_state.get("medium_render", []))
+
+    # Particles (from atmosphere_field)
+    scene.particle_system = interpret_particles(visual_state.get("atmosphere_field", []))

@@ -16,48 +16,7 @@ import random
 from dataclasses import dataclass, field
 
 from .lut import clamp
-
-
-# ── grid primitives ────────────────────────────────────────────────────
-
-
-@dataclass(slots=True)
-class Cell:
-    """A single character cell in the output grid."""
-
-    char: str = " "
-    style: str = ""  # Rich-compatible style string
-
-
-@dataclass
-class CharGrid:
-    """Row-major character grid.  ``index = row * width + col``."""
-
-    width: int
-    height: int
-    cells: list[Cell] = field(default_factory=list)
-
-    def __post_init__(self) -> None:
-        expected = self.width * self.height
-        if len(self.cells) < expected:
-            self.cells.extend(Cell() for _ in range(expected - len(self.cells)))
-
-    # ── access helpers ─────────────────────────────────────────────────
-
-    def _idx(self, col: int, row: int) -> int:
-        return row * self.width + col
-
-    def in_bounds(self, col: int, row: int) -> bool:
-        return 0 <= col < self.width and 0 <= row < self.height
-
-    def get(self, col: int, row: int) -> Cell:
-        if not self.in_bounds(col, row):
-            return Cell()
-        return self.cells[self._idx(col, row)]
-
-    def set(self, col: int, row: int, cell: Cell) -> None:
-        if self.in_bounds(col, row):
-            self.cells[self._idx(col, row)] = cell
+from .rasterizer import Cell, CharGrid
 
 
 # ── style helpers ──────────────────────────────────────────────────────
