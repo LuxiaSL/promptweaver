@@ -20,6 +20,7 @@ from .engine import CombinatorialEngine
 from .models import GeneratedPrompt
 from .palettes import Palette, palette_for_template
 from .store import PromptStore
+from .hyperobject.viewport import HyperobjectViewport
 from .widgets import (
     EntropyMeter,
     GlitchPrompt,
@@ -141,6 +142,12 @@ class PromptWeaverApp(App[None]):
         min-height: 3;
     }
 
+    #hyperobject-viewport {
+        display: none;
+        height: 1fr;
+        min-height: 3;
+    }
+
     #hacker-log {
         height: 1fr;
         min-height: 3;
@@ -169,6 +176,7 @@ class PromptWeaverApp(App[None]):
         Binding("t", "cycle_template", "TEMPLATE"),
         Binding("f", "toggle_favorite", "FAV"),
         Binding("a", "toggle_auto", "AUTO"),
+        Binding("v", "toggle_hyperobject", "HYPER"),
         Binding("h", "toggle_hacker_log", "TRACE"),
         Binding("c", "copy_prompt", "COPY"),
         Binding("n", "copy_negative", "NEG"),
@@ -187,6 +195,7 @@ class PromptWeaverApp(App[None]):
         self._hacker_visible: bool = False
         self._favorites: set[str] = set()
         self._auto_timer: Optional[Timer] = None
+        self._hyper_visible: bool = False
 
     def compose(self) -> ComposeResult:
         yield MatrixBanner()
@@ -198,6 +207,7 @@ class PromptWeaverApp(App[None]):
                     yield Static(id="components-display")
                     yield EntropyMeter(id="entropy-display")
                 yield MatrixRain(id="matrix-rain")
+                yield HyperobjectViewport(id="hyperobject-viewport")
                 yield HackerLog(id="hacker-log")
             with Vertical(id="sidebar"):
                 yield HistoryLog(id="history-log")
@@ -224,6 +234,7 @@ class PromptWeaverApp(App[None]):
         self.query_one("#matrix-rain", MatrixRain).set_palette(palette)
         self.query_one("#hacker-log", HackerLog).set_palette(palette)
         self.query_one("#entropy-display", EntropyMeter).set_palette(palette)
+        self.query_one("#hyperobject-viewport", HyperobjectViewport).set_palette(palette)
 
     # ── generation ────────────────────────────────────────────────────
 
@@ -346,6 +357,11 @@ class PromptWeaverApp(App[None]):
             template_id=p.template_id,
         )
 
+        # ── hyperobject viewport ───────────────────────────────────────
+        self.query_one(
+            "#hyperobject-viewport", HyperobjectViewport
+        ).set_prompt(p)
+
         # ── hacker trace log ─────────────────────────────────────────
         hacker = self.query_one("#hacker-log", HackerLog)
         hacker.add_trace(
@@ -405,12 +421,37 @@ class PromptWeaverApp(App[None]):
             self.notify(f"auto-generate: ON ({AUTO_INTERVAL}s)", timeout=1)
             self._generate()
 
+    def action_toggle_hyperobject(self) -> None:
+        rain = self.query_one("#matrix-rain", MatrixRain)
+        hyper = self.query_one("#hyperobject-viewport", HyperobjectViewport)
+        hacker = self.query_one("#hacker-log", HackerLog)
+        self._hyper_visible = not self._hyper_visible
+        if self._hyper_visible:
+            rain.display = False
+            hacker.display = False
+            hyper.display = True
+            self._hacker_visible = False
+        else:
+            hyper.display = False
+            rain.display = not self._hacker_visible
+            hacker.display = self._hacker_visible
+
     def action_toggle_hacker_log(self) -> None:
         rain = self.query_one("#matrix-rain", MatrixRain)
         hacker = self.query_one("#hacker-log", HackerLog)
+        hyper = self.query_one("#hyperobject-viewport", HyperobjectViewport)
         self._hacker_visible = not self._hacker_visible
-        rain.display = not self._hacker_visible
-        hacker.display = self._hacker_visible
+        if self._hacker_visible:
+            rain.display = False
+            hyper.display = False
+            hacker.display = True
+            self._hyper_visible = False
+        else:
+            hacker.display = False
+            if self._hyper_visible:
+                hyper.display = True
+            else:
+                rain.display = True
 
     def action_copy_prompt(self) -> None:
         if not self.current:
