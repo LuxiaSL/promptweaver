@@ -18,16 +18,16 @@ Prior art: dream_gen's profile_templates.py (StableComponentSelector,
 
 Usage:
     # Profile with existing embedding cache (no model load if prompts fit)
-    uv run python -m promptweaver.tools.profile_templates \
+    uv run python -m apeiron.tools.profile_templates \
         --components data/curated_gated.yaml
 
     # Profile with explicit model (slower, builds cache)
-    uv run python -m promptweaver.tools.profile_templates \
+    uv run python -m apeiron.tools.profile_templates \
         --components data/curated_gated.yaml \
         --clip-model openclip --t5-model google/t5-v1_1-xxl
 
     # Compare two pools
-    uv run python -m promptweaver.tools.profile_templates \
+    uv run python -m apeiron.tools.profile_templates \
         --components data/curated_gated.yaml \
         --baseline-components data/components.yaml
 """

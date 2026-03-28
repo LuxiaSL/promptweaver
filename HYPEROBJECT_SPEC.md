@@ -3,7 +3,7 @@
 > *"A hyperobject is something massively distributed in time and space
 > relative to humans." — Timothy Morton*
 
-PromptWeaver already generates prompts from a combinatorial space so vast it
+Apeiron already generates prompts from a combinatorial space so vast it
 will never be exhausted. Hyperobject Mode makes that space *visible* — a
 real-time 3D ASCII renderer that transforms every generation into a living
 geometric entity, shaped by template semantics, component properties, and
@@ -73,7 +73,7 @@ Two prompts from different templates will be entirely different geometric specie
 ### Module layout
 
 ```
-promptweaver/
+apeiron/
 ├── hyperobject/
 │   ├── __init__.py
 │   ├── viewport.py        # HyperobjectViewport (Textual widget)
@@ -737,7 +737,7 @@ vectors (cosine similarity = dot product).
 
 ### 6.1 Embedding Source: Cached `.npz` Files
 
-Two pre-computed embedding caches exist in `promptweaver/data/`:
+Two pre-computed embedding caches exist in `apeiron/data/`:
 
 | File | Models | Dimensions | Words | Size |
 |---|---|---|---|---|
@@ -1256,8 +1256,8 @@ Binding("v", "toggle_hyperobject", "HYPER")
 ### 12.5 CLI Flag
 
 ```bash
-promptweaver --hyper        # Launch directly in Hyperobject Mode
-promptweaver --hyper --fs   # Launch in fullscreen Hyperobject Mode
+apeiron --hyper        # Launch directly in Hyperobject Mode
+apeiron --hyper --fs   # Launch in fullscreen Hyperobject Mode
 ```
 
 ---

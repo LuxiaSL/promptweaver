@@ -1,4 +1,4 @@
-"""Textual TUI application for Prompt Weaver — Matrix Edition."""
+"""Textual TUI application for Apeiron — Matrix Edition."""
 
 from __future__ import annotations
 
@@ -108,10 +108,10 @@ def _corrupt_text(text: str) -> str:
     return "".join(result)
 
 
-class PromptWeaverApp(App[None]):
+class ApeironApp(App[None]):
     """Combinatorial prompt generator TUI — Matrix Edition."""
 
-    TITLE = "promptweaver"
+    TITLE = "apeiron"
     SUB_TITLE = "// combinatorial prompt generator"
 
     CSS = """

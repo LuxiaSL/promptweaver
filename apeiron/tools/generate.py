@@ -24,18 +24,18 @@ Usage:
     export OPENAI_API_KEY="sk-..."
 
     # Generate for all categories
-    uv run python -m promptweaver.tools.generate
+    uv run python -m apeiron.tools.generate
 
     # Specific categories, specific models
-    uv run python -m promptweaver.tools.generate \
+    uv run python -m apeiron.tools.generate \
         --categories color_logic medium_render \
         --models claude kimi deepseek
 
     # Dry run (show prompts)
-    uv run python -m promptweaver.tools.generate --dry-run
+    uv run python -m apeiron.tools.generate --dry-run
 
     # Resume from checkpoint
-    uv run python -m promptweaver.tools.generate --resume
+    uv run python -m apeiron.tools.generate --resume
 """
 
 from __future__ import annotations
@@ -644,8 +644,8 @@ async def call_openrouter(
     headers = {
         "Authorization": f"Bearer {api_key}",
         "Content-Type": "application/json",
-        "HTTP-Referer": "https://github.com/LuxiaSL/promptweaver",
-        "X-Title": "PromptWeaver Pool Expansion",
+        "HTTP-Referer": "https://github.com/LuxiaSL/apeiron",
+        "X-Title": "Apeiron Pool Expansion",
     }
 
     full_system = f"{SYSTEM_PROMPT}\n\n---\n\n{category_context}"

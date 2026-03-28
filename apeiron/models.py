@@ -1,4 +1,4 @@
-"""Data models for Prompt Weaver."""
+"""Data models for Apeiron."""
 
 from datetime import datetime
 from typing import Optional

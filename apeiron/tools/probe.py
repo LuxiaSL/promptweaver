@@ -14,15 +14,15 @@ Requires the full T5 model (encoder + decoder), not just the encoder.
 
 Usage:
     # Full pipeline: find voids, decode them, jitter
-    uv run python -m promptweaver.tools.probe \
+    uv run python -m apeiron.tools.probe \
         -i data/selected_final.yaml
 
     # Just vocabulary mining (fast)
-    uv run python -m promptweaver.tools.probe \
+    uv run python -m apeiron.tools.probe \
         -i data/selected_final.yaml --vocab-only
 
     # Interpolation probing between specific categories
-    uv run python -m promptweaver.tools.probe \
+    uv run python -m apeiron.tools.probe \
         -i data/selected_final.yaml --interpolate
 """
 

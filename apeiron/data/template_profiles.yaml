@@ -1,5 +1,5 @@
 clip_model: openclip
-components: promptweaver/data/curated_gated.yaml
+components: apeiron/data/curated_gated.yaml
 gating: AND(internal), OR(uniqueness)
 generated_at: '2026-03-26T02:32:19.953862'
 n_samples: 1000

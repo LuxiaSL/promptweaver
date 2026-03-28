@@ -14,19 +14,19 @@ Also provides a --review mode that just lists issues without changing anything.
 
 Usage:
     # Review mode — show all issues
-    uv run python -m promptweaver.tools.curate \
+    uv run python -m apeiron.tools.curate \
         --selected data/selected_final.yaml \
         --original data/components.yaml \
         --review
 
     # Apply fixes
-    uv run python -m promptweaver.tools.curate \
+    uv run python -m apeiron.tools.curate \
         --selected data/selected_final.yaml \
         --original data/components.yaml \
         -o data/curated_components.yaml
 
     # Also integrate void discoveries
-    uv run python -m promptweaver.tools.curate \
+    uv run python -m apeiron.tools.curate \
         --selected data/selected_final.yaml \
         --original data/components.yaml \
         --probe data/probe_results.yaml \

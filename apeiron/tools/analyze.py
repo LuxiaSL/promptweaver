@@ -11,21 +11,21 @@ Standalone analysis tool for examining component quality at any stage:
 
 Usage:
     # Analyze a components YAML
-    uv run python -m promptweaver.tools.analyze \
+    uv run python -m apeiron.tools.analyze \
         --input data/components.yaml
 
     # Compare old vs new
-    uv run python -m promptweaver.tools.analyze \
+    uv run python -m apeiron.tools.analyze \
         --input data/selected_components.yaml \
         --baseline data/components.yaml
 
     # Simulate prompts and measure diversity
-    uv run python -m promptweaver.tools.analyze \
+    uv run python -m apeiron.tools.analyze \
         --input data/selected_components.yaml \
         --simulate 200
 
     # CLIP-only (faster)
-    uv run python -m promptweaver.tools.analyze \
+    uv run python -m apeiron.tools.analyze \
         --input data/components.yaml --clip-only
 """
 

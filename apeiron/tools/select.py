@@ -13,7 +13,7 @@ Gate logic per pipeline stage:
     Opposites:      T5-only — semantic distance for negative prompts
 
 Usage:
-    uv run python -m promptweaver.tools.select \
+    uv run python -m apeiron.tools.select \
         -i data/generated_candidates_20260325_193614.yaml \
         --k 60 --clip-model openclip --t5-model google/t5-v1_1-xxl
 """

@@ -11,7 +11,7 @@ Generates PCA/UMAP plots of the embedding space for visual inspection:
 Saves PNG files — no display needed (works on headless nodes).
 
 Usage:
-    uv run python -m promptweaver.tools.visualize \
+    uv run python -m apeiron.tools.visualize \
         -i data/selected_final.yaml \
         --out-dir data/plots/
 """

@@ -21,13 +21,13 @@ Phase 3 — Inter-Category Gap Analysis:
 
 Usage:
     # Set analysis only (instant, no models)
-    uv run python -m promptweaver.tools.pool_analysis --set-only
+    uv run python -m apeiron.tools.pool_analysis --set-only
 
     # Full analysis with OpenCLIP + T5-XXL
-    uv run python -m promptweaver.tools.pool_analysis
+    uv run python -m apeiron.tools.pool_analysis
 
     # Save full report
-    uv run python -m promptweaver.tools.pool_analysis -o data/pool_analysis_report.yaml
+    uv run python -m apeiron.tools.pool_analysis -o data/pool_analysis_report.yaml
 """
 
 from __future__ import annotations

@@ -1,4 +1,4 @@
-"""Custom matrix-themed widgets for PromptWeaver TUI."""
+"""Custom matrix-themed widgets for Apeiron TUI."""
 
 from __future__ import annotations
 
@@ -38,7 +38,7 @@ class MatrixBanner(Static):
 
     def __init__(
         self,
-        text: str = "PROMPTWEAVER",
+        text: str = "APEIRON",
         font: str = "doom",
         **kwargs: object,
     ) -> None:

@@ -15,7 +15,7 @@ Models:
     5. T5-v1_1-XXL — diffusion-model T5 (Flux/SD3 text encoder)
 
 Usage:
-    uv run python -m promptweaver.tools.multi_embed \
+    uv run python -m apeiron.tools.multi_embed \
         -i data/curated_v2.yaml \
         -o data/multi_embed_report.yaml
 """

@@ -12,16 +12,16 @@ Together they give a more complete picture of "prompt diversity."
 
 Usage:
     # Compute dual embeddings for current components
-    uv run python -m promptweaver.tools.embeddings
+    uv run python -m apeiron.tools.embeddings
 
     # Compute for a generated candidates file
-    uv run python -m promptweaver.tools.embeddings --input candidates.yaml
+    uv run python -m apeiron.tools.embeddings --input candidates.yaml
 
     # CLIP-only (faster, skip T5)
-    uv run python -m promptweaver.tools.embeddings --clip-only
+    uv run python -m apeiron.tools.embeddings --clip-only
 
     # Custom models
-    uv run python -m promptweaver.tools.embeddings \
+    uv run python -m apeiron.tools.embeddings \
         --clip-model openai/clip-vit-large-patch14 \
         --t5-model google/t5-v1_1-xxl
 

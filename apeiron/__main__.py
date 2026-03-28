@@ -1,4 +1,4 @@
-"""CLI entry point for Prompt Weaver."""
+"""CLI entry point for Apeiron."""
 
 import argparse
 import json
@@ -47,7 +47,7 @@ def main() -> None:
     from . import __version__
 
     parser = argparse.ArgumentParser(
-        prog="promptweaver",
+        prog="apeiron",
         description="Combinatorial prompt generator that never repeats",
     )
     parser.add_argument(
@@ -57,7 +57,7 @@ def main() -> None:
         "--db",
         type=Path,
         metavar="PATH",
-        help="Custom database path (default: ~/.local/share/promptweaver/prompts.db)",
+        help="Custom database path (default: ~/.local/share/apeiron/prompts.db)",
     )
 
     # ── operation modes (mutually exclusive) ──────────────────────────
@@ -250,7 +250,7 @@ def _cmd_stats(args: argparse.Namespace) -> None:
     try:
         stats = store.get_stats()
 
-        print("promptweaver stats")
+        print("apeiron stats")
         print("\u2500" * 40)
         print(f"  total prompts:  {stats['total']:>10,}")
         print(f"  favorites:      {stats['favorites']:>10,}")
@@ -279,9 +279,9 @@ def _cmd_stats(args: argparse.Namespace) -> None:
 
 def _cmd_tui(args: argparse.Namespace) -> None:
     try:
-        from .app import PromptWeaverApp
+        from .app import ApeironApp
 
-        app = PromptWeaverApp(db_path=args.db, hyper=args.hyper)
+        app = ApeironApp(db_path=args.db, hyper=args.hyper)
         app.run()
     except FileNotFoundError as e:
         print(f"Error: {e}", file=sys.stderr)

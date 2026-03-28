@@ -22,11 +22,11 @@ included here.
 
 Primary scope:
 
-- `promptweaver/hyperobject/rasterizer.py`
-- `promptweaver/hyperobject/transform.py`
-- `promptweaver/hyperobject/scene.py`
-- `promptweaver/hyperobject/geometry.py`
-- `promptweaver/hyperobject/postfx.py`
+- `apeiron/hyperobject/rasterizer.py`
+- `apeiron/hyperobject/transform.py`
+- `apeiron/hyperobject/scene.py`
+- `apeiron/hyperobject/geometry.py`
+- `apeiron/hyperobject/postfx.py`
 
 Reference patterns consulted:
 
@@ -35,7 +35,7 @@ Reference patterns consulted:
 - `asciimare`: lookup-heavy rendering, precomputed shading decisions, bias
   toward avoiding work inside the frame loop.
 
-The useful transfer is structural, not literal. Promptweaver is not a voxel
+The useful transfer is structural, not literal. Apeiron is not a voxel
 raycaster and should not be forced into one.
 
 ## Measurement Context
@@ -83,7 +83,7 @@ The audit suggests:
 - A substantial share of current pain is recoverable in Python by flattening
   hot loops, caching immutable data, and avoiding per-sample/per-point object
   churn.
-- A full rewrite of Promptweaver is not justified by the measured profile.
+- A full rewrite of Apeiron is not justified by the measured profile.
 - If a native rewrite is ever warranted, it should target the renderer core
   after the Python structural wins have been exhausted.
 
@@ -497,7 +497,7 @@ expected outcome is:
 
 Most importantly, it should answer the strategic question with evidence:
 
-- If Phase 1 produces the expected gains, Promptweaver should stay Python-first
+- If Phase 1 produces the expected gains, Apeiron should stay Python-first
   and only consider a narrow native renderer later.
 - If Phase 1 underperforms, then a native-core spike becomes easier to justify
   because the remaining cost will be better isolated.

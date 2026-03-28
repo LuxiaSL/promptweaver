@@ -3,9 +3,9 @@
 
 import numpy as np
 import torch
-from promptweaver.tools.embeddings import load_components_yaml
+from apeiron.tools.embeddings import load_components_yaml
 
-categories = load_components_yaml("promptweaver/data/curated_v2.yaml")
+categories = load_components_yaml("apeiron/data/curated_v2.yaml")
 
 all_words = []
 cat_labels = []

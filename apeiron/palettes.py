@@ -1,4 +1,4 @@
-"""Color palettes for PromptWeaver TUI.
+"""Color palettes for Apeiron TUI.
 
 Each template maps to a palette that shifts the entire TUI chrome —
 borders, banner, rain, stats — while component category highlights
