@@ -21,7 +21,7 @@ tools = [
 
 [project.scripts]
 apeiron = "apeiron.__main__:main"
-pw = "apeiron.__main__:main"
+ap = "apeiron.__main__:main"
 
 [build-system]
 requires = ["hatchling"]
