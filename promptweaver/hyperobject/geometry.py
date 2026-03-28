@@ -240,7 +240,7 @@ class HeightMap:
         if 0 <= x < self.width and 0 <= z < self.depth:
             self.heights[x + z * self.width] = h
 
-    def to_mesh(self) -> Mesh:
+    def to_mesh(self, include_edges: bool = False) -> Mesh:
         """Convert heightmap to triangle mesh for rendering."""
         verts: list[Vec3] = []
         cx = (self.width - 1) * self.spacing / 2.0
@@ -265,7 +265,8 @@ class HeightMap:
 
         mesh = Mesh(vertices=verts, faces=faces)
         mesh.compute_normals()
-        mesh.compute_edges_from_faces()
+        if include_edges:
+            mesh.compute_edges_from_faces()
         return mesh
 
 

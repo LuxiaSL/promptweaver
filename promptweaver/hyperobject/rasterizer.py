@@ -14,10 +14,10 @@ from typing import Iterator, Optional, Protocol
 
 from rich.text import Text
 
-from .lut import Vec3, clamp, lerp_f
+from .lut import Vec3, clamp
 from .geometry import Mesh, PointCloud, VoxelGrid
 from .shaders import SHADER_PRESETS
-from .transform import Camera, ProjectionContext, ScreenPoint, bresenham
+from .transform import Camera, ProjectionContext, ScreenPoint
 
 
 # donut.c-style 12-character luminance ramp (dark → bright).
@@ -60,33 +60,37 @@ class TorusSampler:
         self.r = r
         self.theta_step = theta_step
         self.phi_step = phi_step
+        self._samples = self._build_samples()
 
-    def samples(self) -> Iterator[tuple[Vec3, Vec3]]:
+    def _build_samples(self) -> tuple[tuple[Vec3, Vec3], ...]:
+        samples: list[tuple[Vec3, Vec3]] = []
         R, r = self.R, self.r
-        TWO_PI = 2.0 * math.pi
+        two_pi = 2.0 * math.pi
         theta = 0.0
-        while theta < TWO_PI:
+        while theta < two_pi:
             cos_t = math.cos(theta)
             sin_t = math.sin(theta)
             phi = 0.0
-            while phi < TWO_PI:
+            while phi < two_pi:
                 cos_p = math.cos(phi)
                 sin_p = math.sin(phi)
 
-                # Point on torus surface
                 ring = R + r * cos_t
                 x = ring * cos_p
                 z = ring * sin_p
                 y = r * sin_t
 
-                # Surface normal (outward from tube center)
                 nx = cos_t * cos_p
                 nz = cos_t * sin_p
                 ny = sin_t
 
-                yield Vec3(x, y, z), Vec3(nx, ny, nz)
+                samples.append((Vec3(x, y, z), Vec3(nx, ny, nz)))
                 phi += self.phi_step
             theta += self.theta_step
+        return tuple(samples)
+
+    def samples(self) -> Iterator[tuple[Vec3, Vec3]]:
+        return iter(self._samples)
 
 
 class SphereSampler:
@@ -145,6 +149,7 @@ class MobiusSampler:
         self.v_max = v_max
         # Pre-compute normalization scale (match make_mobius_strip)
         self._scale = self._compute_scale()
+        self._samples = self._build_samples()
 
     def _compute_scale(self) -> float:
         """Find bounding radius and compute scale to radius ~1.0."""
@@ -174,24 +179,30 @@ class MobiusSampler:
         return Vec3(x, y, z)
 
     def samples(self) -> Iterator[tuple[Vec3, Vec3]]:
-        TWO_PI = 2.0 * math.pi
+        return iter(self._samples)
+
+    def _build_samples(self) -> tuple[tuple[Vec3, Vec3], ...]:
+        samples: list[tuple[Vec3, Vec3]] = []
+        two_pi = 2.0 * math.pi
         eps = 0.01
         v_range = self.v_max - self.v_min
         scale = self._scale
+        raw_point = self._raw_point
 
         u = 0.0
-        while u < TWO_PI:
+        while u < two_pi:
             for j in range(self.v_steps + 1):
                 v = self.v_min + v_range * j / self.v_steps
-                pt = self._raw_point(u, v) * scale
+                pt = raw_point(u, v) * scale
 
                 # Numerical normal via cross product of partial derivatives
-                du = self._raw_point(u + eps, v) - self._raw_point(u - eps, v)
-                dv = self._raw_point(u, v + eps) - self._raw_point(u, v - eps)
+                du = raw_point(u + eps, v) - raw_point(u - eps, v)
+                dv = raw_point(u, v + eps) - raw_point(u, v - eps)
                 normal = du.cross(dv).normalized()
 
-                yield pt, normal
+                samples.append((pt, normal))
             u += self.u_step
+        return tuple(samples)
 
 
 # ── character grid (shared output type) ─────────────────────────────────
@@ -576,6 +587,102 @@ class AsciiRasterizer:
 
     # ── wireframe rendering ───────────────────────────────────────────
 
+    def _draw_projected_line(
+        self,
+        p0: ScreenPoint,
+        p1: ScreenPoint,
+        char: str,
+        styles: tuple[str, str, str, str],
+    ) -> None:
+        """Stream a depth-interpolated Bresenham line directly to the grid."""
+        bright_s, primary_s, mid_s, dim_s = styles
+        width = self.width
+        height = self.height
+        zbuf = self.grid.zbuf
+        cells = self.grid.cells
+
+        x0, y0, depth0 = p0.col, p0.row, p0.depth
+        x1, y1, depth1 = p1.col, p1.row, p1.depth
+        dx = abs(x1 - x0)
+        dy = abs(y1 - y0)
+        sx = 1 if x0 < x1 else -1
+        sy = 1 if y0 < y1 else -1
+        err = dx - dy
+        steps = dx if dx > dy else dy
+        if steps < 1:
+            steps = 1
+        depth_delta = depth1 - depth0
+        step = 0
+        endpoints_in_bounds = (
+            0 <= x0 < width
+            and 0 <= y0 < height
+            and 0 <= x1 < width
+            and 0 <= y1 < height
+        )
+
+        if endpoints_in_bounds:
+            while True:
+                depth = depth0 + depth_delta * (step / steps)
+                idx = y0 * width + x0
+                if depth < zbuf[idx]:
+                    if depth < 0.35:
+                        style = bright_s
+                    elif depth < 0.55:
+                        style = primary_s
+                    elif depth < 0.75:
+                        style = mid_s
+                    else:
+                        style = dim_s
+                    zbuf[idx] = depth
+                    cell = cells[idx]
+                    cell.char = char
+                    cell.style = style
+                    cell.depth = depth
+
+                if x0 == x1 and y0 == y1:
+                    break
+
+                e2 = 2 * err
+                if e2 > -dy:
+                    err -= dy
+                    x0 += sx
+                if e2 < dx:
+                    err += dx
+                    y0 += sy
+                step += 1
+            return
+
+        while True:
+            if 0 <= x0 < width and 0 <= y0 < height:
+                depth = depth0 + depth_delta * (step / steps)
+                idx = y0 * width + x0
+                if depth < zbuf[idx]:
+                    if depth < 0.35:
+                        style = bright_s
+                    elif depth < 0.55:
+                        style = primary_s
+                    elif depth < 0.75:
+                        style = mid_s
+                    else:
+                        style = dim_s
+                    zbuf[idx] = depth
+                    cell = cells[idx]
+                    cell.char = char
+                    cell.style = style
+                    cell.depth = depth
+
+            if x0 == x1 and y0 == y1:
+                break
+
+            e2 = 2 * err
+            if e2 > -dy:
+                err -= dy
+                x0 += sx
+            if e2 < dx:
+                err += dx
+                y0 += sy
+            step += 1
+
     def draw_mesh_wireframe(
         self,
         mesh: Mesh,
@@ -599,21 +706,28 @@ class AsciiRasterizer:
             p0, p1 = projected[i0], projected[i1]
             if p0 is None or p1 is None:
                 continue
-
-            points = bresenham(p0.col, p0.row, p1.col, p1.row)
-            n = max(len(points) - 1, 1)
-            for pi, (col, row) in enumerate(points):
-                t = pi / n
-                depth = lerp_f(p0.depth, p1.depth, t)
-                style = depth_to_style(depth, bright_s, primary_s, mid_s, dim_s)
-                self.grid.write(col, row, edge_char, style, depth)
+            self._draw_projected_line(p0, p1, edge_char, styles)
 
         # Draw vertices
+        width = self.width
+        height = self.height
+        zbuf = self.grid.zbuf
+        cells = self.grid.cells
         if vertex_char:
             for sp in projected:
                 if sp is not None:
-                    style = depth_to_style(sp.depth, bright_s, primary_s, mid_s, dim_s)
-                    self.grid.write(sp.col, sp.row, vertex_char, style, sp.depth)
+                    col, row, depth = sp.col, sp.row, sp.depth
+                    if 0 <= col < width and 0 <= row < height:
+                        idx = row * width + col
+                        if depth < zbuf[idx]:
+                            style = depth_to_style(
+                                depth, bright_s, primary_s, mid_s, dim_s
+                            )
+                            zbuf[idx] = depth
+                            cell = cells[idx]
+                            cell.char = vertex_char
+                            cell.style = style
+                            cell.depth = depth
 
     # ── point cloud rendering ─────────────────────────────────────────
 
@@ -625,23 +739,82 @@ class AsciiRasterizer:
         styles: tuple[str, str, str, str] = ("bright_white", "white", "grey70", "grey50"),
     ) -> None:
         """Render a point cloud with depth+brightness-based characters."""
-        bright_s, primary_s, mid_s, dim_s = styles
-        n_chars = len(point_chars)
+        if not point_chars:
+            return
 
-        for i, pt in enumerate(cloud.points):
-            sp = ctx.project_vertex(pt)
-            if sp is None:
+        bright_s, primary_s, mid_s, dim_s = styles
+        last_char_index = len(point_chars) - 1
+        points = cloud.points
+        brightness = cloud.brightness
+        brightness_count = len(brightness)
+        width = self.width
+        height = self.height
+        max_col = ctx.max_col
+        max_row = ctx.max_row
+        clip_margin = ctx.clip_margin
+        depth_margin = ctx.depth_margin
+
+        m0, m1, m2, m3 = ctx.m0, ctx.m1, ctx.m2, ctx.m3
+        m4, m5, m6, m7 = ctx.m4, ctx.m5, ctx.m6, ctx.m7
+        m8, m9, m10, m11 = ctx.m8, ctx.m9, ctx.m10, ctx.m11
+        m12, m13, m14, m15 = ctx.m12, ctx.m13, ctx.m14, ctx.m15
+
+        zbuf = self.grid.zbuf
+        cells = self.grid.cells
+
+        for i, pt in enumerate(points):
+            px, py, pz = pt.x, pt.y, pt.z
+            clip_x = m0 * px + m1 * py + m2 * pz + m3
+            clip_y = m4 * px + m5 * py + m6 * pz + m7
+            clip_z = m8 * px + m9 * py + m10 * pz + m11
+            clip_w = m12 * px + m13 * py + m14 * pz + m15
+            if clip_w <= 0.0:
                 continue
 
-            b = cloud.brightness[i] if i < len(cloud.brightness) else 0.5
-            # Combine brightness with inverse depth for character selection
-            combined = b * (1.0 - sp.depth * 0.5)
-            char_idx = int(combined * (n_chars - 1))
-            char_idx = max(0, min(char_idx, n_chars - 1))
+            inv_w = 1.0 / clip_w
+            ndc_x = clip_x * inv_w
+            ndc_y = clip_y * inv_w
+            ndc_z = clip_z * inv_w
+            if (
+                abs(ndc_x) > clip_margin
+                or abs(ndc_y) > clip_margin
+                or abs(ndc_z) > depth_margin
+            ):
+                continue
+
+            col = int(((ndc_x * 0.5) + 0.5) * max_col + 0.5)
+            row = int(((1.0 - ndc_y) * 0.5) * max_row + 0.5)
+            if col < 0 or col >= width or row < 0 or row >= height:
+                continue
+
+            depth = clamp((ndc_z + 1.0) * 0.5, 0.0, 1.0)
+            idx = row * width + col
+            if depth >= zbuf[idx]:
+                continue
+
+            point_brightness = brightness[i] if i < brightness_count else 0.5
+            combined = point_brightness * (1.0 - depth * 0.5)
+            char_idx = int(combined * last_char_index)
+            if char_idx < 0:
+                char_idx = 0
+            elif char_idx > last_char_index:
+                char_idx = last_char_index
             char = point_chars[char_idx]
 
-            style = depth_to_style(sp.depth, bright_s, primary_s, mid_s, dim_s)
-            self.grid.write(sp.col, sp.row, char, style, sp.depth)
+            if depth < 0.35:
+                style = bright_s
+            elif depth < 0.55:
+                style = primary_s
+            elif depth < 0.75:
+                style = mid_s
+            else:
+                style = dim_s
+
+            zbuf[idx] = depth
+            cell = cells[idx]
+            cell.char = char
+            cell.style = style
+            cell.depth = depth
 
     # ── voxel grid rendering ──────────────────────────────────────────
 
@@ -690,18 +863,24 @@ class AsciiRasterizer:
             p0, p1 = projected[i0], projected[i1]
             if p0 is None or p1 is None:
                 continue
-            points = bresenham(p0.col, p0.row, p1.col, p1.row)
-            n = max(len(points) - 1, 1)
-            for pi, (col, row) in enumerate(points):
-                t = pi / n
-                depth = lerp_f(p0.depth, p1.depth, t)
-                style = depth_to_style(depth, bright_s, primary_s, mid_s, dim_s)
-                self.grid.write(col, row, edge_char, style, depth)
+            self._draw_projected_line(p0, p1, edge_char, styles)
 
         # Vertices (bright dots)
+        width = self.width
+        height = self.height
+        zbuf = self.grid.zbuf
+        cells = self.grid.cells
         for sp in projected:
             if sp is not None:
-                self.grid.write(sp.col, sp.row, vertex_char, bright_s, sp.depth * 0.9)
+                col, row, depth = sp.col, sp.row, sp.depth * 0.9
+                if 0 <= col < width and 0 <= row < height:
+                    idx = row * width + col
+                    if depth < zbuf[idx]:
+                        zbuf[idx] = depth
+                        cell = cells[idx]
+                        cell.char = vertex_char
+                        cell.style = bright_s
+                        cell.depth = depth
 
     # ── heightmap surface rendering ───────────────────────────────────
 

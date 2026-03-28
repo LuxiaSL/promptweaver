@@ -29,22 +29,21 @@ def _add_dim(style: str) -> str:
     return ("dim " + style).strip()
 
 
-def _is_empty(cell: Cell) -> bool:
-    """Return True if the cell contains only whitespace."""
-    return cell.char.strip() == ""
-
-
 # ── effects ────────────────────────────────────────────────────────────
 
 
 def apply_scanlines(grid: CharGrid, period: int = 2) -> None:
     """Dim every *period*-th row to simulate CRT scanlines."""
     period = max(1, period)
+    width = grid.width
+    cells = grid.cells
+    add_dim = _add_dim
     for row in range(grid.height):
         if row % period == 0:
-            for col in range(grid.width):
-                cell = grid.get(col, row)
-                cell.style = _add_dim(cell.style)
+            base = row * width
+            for col in range(width):
+                cell = cells[base + col]
+                cell.style = add_dim(cell.style)
 
 
 def apply_vignette(grid: CharGrid, strength: float = 0.5) -> None:
@@ -59,20 +58,25 @@ def apply_vignette(grid: CharGrid, strength: float = 0.5) -> None:
 
     cx = grid.width / 2.0
     cy = grid.height / 2.0
-    max_r = math.sqrt(cx * cx + cy * cy)
-    if max_r < 1e-6:
+    if cx < 1e-6 or cy < 1e-6:
         return
 
+    width = grid.width
+    cells = grid.cells
+    add_dim = _add_dim
+    inv_cx = 1.0 / max(cx, 1.0)
+    inv_cy = 1.0 / max(cy, 1.0)
+    threshold = 0.4 / strength
+    threshold_sq = threshold * threshold
+    col_norm_sq = [((col - cx) * inv_cx) ** 2 for col in range(width)]
+
     for row in range(grid.height):
-        dy = (row - cy) / max(cy, 1.0)
-        for col in range(grid.width):
-            dx = (col - cx) / max(cx, 1.0)
-            r = math.sqrt(dx * dx + dy * dy)
-            # Normalise so that corners sit at r~1.41; apply strength curve.
-            factor = clamp(r * strength, 0.0, 1.0)
-            if factor > 0.4:
-                cell = grid.get(col, row)
-                cell.style = _add_dim(cell.style)
+        row_norm_sq = ((row - cy) * inv_cy) ** 2
+        base = row * width
+        for col in range(width):
+            if row_norm_sq + col_norm_sq[col] > threshold_sq:
+                cell = cells[base + col]
+                cell.style = add_dim(cell.style)
 
 
 _BLOOM_CHARS_DEFAULT: str = "\u2588#%@\u25cf\u25c9"  # █#%@●◉
@@ -87,21 +91,38 @@ def apply_bloom(
     neighbours to receive a dim dot if they are currently empty.
     """
     # Collect bloom sources first to avoid feedback within one pass.
-    sources: list[tuple[int, int]] = []
+    width = grid.width
+    height = grid.height
+    cells = grid.cells
+    sources: list[int] = []
     tc = set(threshold_chars)
-    for row in range(grid.height):
-        for col in range(grid.width):
-            if grid.get(col, row).char in tc:
-                sources.append((col, row))
+    for idx, cell in enumerate(cells):
+        if cell.char in tc:
+            sources.append(idx)
 
-    for col, row in sources:
-        for dc, dr in ((-1, 0), (1, 0), (0, -1), (0, 1)):
-            nc, nr = col + dc, row + dr
-            if grid.in_bounds(nc, nr):
-                neighbour = grid.get(nc, nr)
-                if _is_empty(neighbour):
-                    neighbour.char = "\u00b7"  # ·
-                    neighbour.style = "dim"
+    for idx in sources:
+        col = idx % width
+        row = idx // width
+        if col > 0:
+            neighbour = cells[idx - 1]
+            if not neighbour.char.strip():
+                neighbour.char = "\u00b7"
+                neighbour.style = "dim"
+        if col + 1 < width:
+            neighbour = cells[idx + 1]
+            if not neighbour.char.strip():
+                neighbour.char = "\u00b7"
+                neighbour.style = "dim"
+        if row > 0:
+            neighbour = cells[idx - width]
+            if not neighbour.char.strip():
+                neighbour.char = "\u00b7"
+                neighbour.style = "dim"
+        if row + 1 < height:
+            neighbour = cells[idx + width]
+            if not neighbour.char.strip():
+                neighbour.char = "\u00b7"
+                neighbour.style = "dim"
 
 
 def apply_noise_grain(grid: CharGrid, density: float = 0.05) -> None:
@@ -111,13 +132,14 @@ def apply_noise_grain(grid: CharGrid, density: float = 0.05) -> None:
     noise dot.
     """
     density = clamp(density, 0.0, 1.0)
-    grain_chars = ("\u00b7", "\u2219", ".")  # ·, ∙, .
-    for row in range(grid.height):
-        for col in range(grid.width):
-            cell = grid.get(col, row)
-            if _is_empty(cell) and random.random() < density:
-                cell.char = random.choice(grain_chars)
-                cell.style = "dim"
+    grain_chars = ("\u00b7", "\u2219", ".")
+    cells = grid.cells
+    rand = random.random
+    randrange = random.randrange
+    for cell in cells:
+        if not cell.char.strip() and rand() < density:
+            cell.char = grain_chars[randrange(3)]
+            cell.style = "dim"
 
 
 def apply_edge_glow(grid: CharGrid) -> None:
@@ -125,19 +147,28 @@ def apply_edge_glow(grid: CharGrid) -> None:
 
     Only empty cells are affected.  The glow character is a dim dot.
     """
-    glow_targets: list[tuple[int, int]] = []
-    for row in range(grid.height):
-        for col in range(grid.width):
-            if not _is_empty(grid.get(col, row)):
-                for dc, dr in ((-1, 0), (1, 0), (0, -1), (0, 1)):
-                    nc, nr = col + dc, row + dr
-                    if grid.in_bounds(nc, nr) and _is_empty(grid.get(nc, nr)):
-                        glow_targets.append((nc, nr))
+    width = grid.width
+    height = grid.height
+    cells = grid.cells
+    glow_targets: list[int] = []
 
-    for col, row in glow_targets:
-        cell = grid.get(col, row)
-        if _is_empty(cell):
-            cell.char = "\u00b7"  # ·
+    for idx, cell in enumerate(cells):
+        if cell.char.strip():
+            col = idx % width
+            row = idx // width
+            if col > 0 and not cells[idx - 1].char.strip():
+                glow_targets.append(idx - 1)
+            if col + 1 < width and not cells[idx + 1].char.strip():
+                glow_targets.append(idx + 1)
+            if row > 0 and not cells[idx - width].char.strip():
+                glow_targets.append(idx - width)
+            if row + 1 < height and not cells[idx + width].char.strip():
+                glow_targets.append(idx + width)
+
+    for idx in glow_targets:
+        cell = cells[idx]
+        if not cell.char.strip():
+            cell.char = "\u00b7"
             cell.style = "dim"
 
 
@@ -156,17 +187,19 @@ def apply_crt_warp(grid: CharGrid) -> None:
     cy = h / 2.0
     # Barrel distortion coefficient (subtle).
     k = 0.15
-    max_r = math.sqrt(cx * cx + cy * cy)
-    if max_r < 1e-6:
+    if cx < 1e-6 or cy < 1e-6:
         return
 
+    src_cells = grid.cells
     new_cells: list[Cell] = [Cell() for _ in range(w * h)]
+    col_norms = [(col - cx) / cx for col in range(w)]
+    row_norms = [(row - cy) / cy for row in range(h)]
 
     for row in range(h):
+        dy = row_norms[row]
         for col in range(w):
             # Normalised coords from center.
-            dx = (col - cx) / cx
-            dy = (row - cy) / cy
+            dx = col_norms[col]
             r = math.sqrt(dx * dx + dy * dy)
 
             # Barrel distortion: push outward.
@@ -179,9 +212,13 @@ def apply_crt_warp(grid: CharGrid) -> None:
             src_col = int(cx + dx * scale * cx)
             src_row = int(cy + dy * scale * cy)
 
-            if grid.in_bounds(src_col, src_row):
-                src = grid.get(src_col, src_row)
-                new_cells[row * w + col] = Cell(char=src.char, style=src.style)
+            if 0 <= src_col < w and 0 <= src_row < h:
+                src = src_cells[src_row * w + src_col]
+                new_cells[row * w + col] = Cell(
+                    char=src.char,
+                    style=src.style,
+                    depth=src.depth,
+                )
             # else: remains an empty Cell (black border from warp)
 
     grid.cells = new_cells

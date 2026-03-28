@@ -189,6 +189,19 @@ class SceneSnapshot:
     surface_sampler: SurfaceSampler | None = None
 
 
+@dataclass(slots=True)
+class FragmentRenderCache:
+    """Reusable exploded fragment topology for translational drift."""
+
+    source_mesh: Mesh
+    group_signature: tuple[tuple[int, ...], ...]
+    base_vertices: tuple[Vec3, ...]
+    vertex_group_indices: tuple[int, ...]
+    faces: list[tuple[int, ...]]
+    normals: list[Vec3]
+    vertex_normals: list[Vec3]
+
+
 # ── scene ───────────────────────────────────────────────────────────────
 
 
@@ -281,6 +294,7 @@ class Scene:
         self.surface_sampler = None
         self.fragment_groups = []
         self.dual_mesh_mode = "overlay"
+        self._fragment_cache = None
 
     def _render_geometry(self, rast: AsciiRasterizer, w: int, h: int) -> None:
         """Render the active geometry."""
@@ -515,6 +529,7 @@ class Scene:
     _fragment_offsets: list[Vec3] | None = None
     _fragment_timer: float = 0.0
     _fragment_cycle: float = 8.0  # seconds per ruin/rebuild cycle
+    _fragment_cache: FragmentRenderCache | None = None
 
     # Lorenz integrator state (for abstract_field trail growth)
     _lorenz_state: tuple[float, float, float] | None = None
@@ -788,6 +803,7 @@ class Scene:
         # Reset per-geometry animation state for the outgoing geometry
         self._fragment_offsets = None
         self._fragment_timer = 0.0
+        self._fragment_cache = None
         self._lorenz_state = None
         self._voxel_timer = 0.0
         self._voxel_eroding = True
@@ -809,7 +825,7 @@ class Scene:
             styles=self.styles,
             fragment_groups=copy.deepcopy(self.fragment_groups),
             dual_mesh_mode=self.dual_mesh_mode,
-            surface_sampler=self.surface_sampler,  # samplers are stateless, no deepcopy
+            surface_sampler=self.surface_sampler,  # immutable sample caches are safe to share
         )
 
     def _render_snapshot(
@@ -869,27 +885,72 @@ class Scene:
         if self._fragment_offsets is None:
             return mesh
 
+        cache = self._fragment_cache_for(mesh, fragment_groups)
+        if cache is None:
+            return mesh
+
+        scaled_offsets = [offset * drift for offset in self._fragment_offsets]
+        vertices = [
+            Vec3(
+                base.x + scaled_offsets[group_index].x,
+                base.y + scaled_offsets[group_index].y,
+                base.z + scaled_offsets[group_index].z,
+            )
+            for base, group_index in zip(cache.base_vertices, cache.vertex_group_indices)
+        ]
+        return Mesh(
+            vertices=vertices,
+            faces=cache.faces,
+            normals=cache.normals,
+            vertex_normals=cache.vertex_normals,
+        )
+
+    def _fragment_cache_for(
+        self,
+        mesh: Mesh,
+        fragment_groups: list[list[int]],
+    ) -> FragmentRenderCache | None:
+        group_signature = tuple(tuple(group) for group in fragment_groups)
+        cache = self._fragment_cache
+        if (
+            cache is not None
+            and cache.source_mesh is mesh
+            and cache.group_signature == group_signature
+        ):
+            return cache
+
         vertices: list[Vec3] = []
+        vertex_group_indices: list[int] = []
         faces: list[tuple[int, ...]] = []
 
         for group_index, group in enumerate(fragment_groups):
-            offset = self._fragment_offsets[group_index] * drift
             for face_index in group:
                 if face_index >= len(mesh.faces):
                     continue
                 face = mesh.faces[face_index]
                 render_face: list[int] = []
                 for vertex_index in face:
-                    vertices.append(mesh.vertices[vertex_index] + offset)
+                    vertices.append(mesh.vertices[vertex_index])
+                    vertex_group_indices.append(group_index)
                     render_face.append(len(vertices) - 1)
                 faces.append(tuple(render_face))
 
         if not faces:
-            return mesh
+            return None
 
         exploded = Mesh(vertices=vertices, faces=faces)
         exploded.compute_normals()
-        return exploded
+        cache = FragmentRenderCache(
+            source_mesh=mesh,
+            group_signature=group_signature,
+            base_vertices=tuple(vertices),
+            vertex_group_indices=tuple(vertex_group_indices),
+            faces=faces,
+            normals=exploded.normals,
+            vertex_normals=exploded.vertex_normals,
+        )
+        self._fragment_cache = cache
+        return cache
 
     def _morph_mesh(self, mesh_a: Mesh, mesh_b: Mesh, t: float) -> Mesh:
         if mesh_a.vertex_count != mesh_b.vertex_count:
